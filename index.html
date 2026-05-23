@@ -397,6 +397,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .apg{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:var(--mono)}
 .apg:hover,.apg.on{background:var(--green);border-color:var(--green);color:#fff}
 
+
+/* ── LAYOUT FIXES ───────────────────────────────── */
+#app{display:none;height:100vh;flex-direction:column;overflow:hidden}
+#app.visible{display:flex}
+.inv-tbl-wrap{overflow-x:auto}
+.comp-tbl{table-layout:auto;white-space:nowrap}
+.comp-tbl th,.comp-tbl td{padding:7px 10px;white-space:nowrap}
+.comp-tbl th:first-child,.comp-tbl td:first-child{padding-left:14px}
+.pred-block{margin-bottom:8px}
+.dept-hd{padding:8px 14px 8px 28px}
+.sb-section-drag{margin-bottom:2px}
+.sb-stat-l{font-size:9px;white-space:normal;word-break:break-word}
+
 </style>
 </head>
 <body>
@@ -601,7 +614,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     </div>
   </div>
   <div style="display:flex;flex:1;overflow:hidden">
-    <div id="sidebar" style="width:230px;background:#1e4a1a;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto">
+    <div id="sidebar" style="width:240px;background:#1e4a1a;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;min-width:240px">
       <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1)">
         <div style="font-size:13px;font-weight:600;color:#fff">Instituto Mamirauá</div>
         <div style="font-size:10px;color:rgba(255,255,255,.35);font-family:var(--mono);margin-top:1px">Wiki TIC · IDSM</div>
@@ -646,6 +659,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
+
+
 
 
 // ── SUPABASE CONFIG ────────────────────────────────────
@@ -934,7 +951,7 @@ function _buildInv(openPred){
         var autoOpen=!!(q||pred===openPred);
         predRows+='<div class="dept-hd '+(autoOpen?'open':'')+'" onclick="toggleDept(this,\''+deptId+'\')">';
         predRows+='<span class="dept-name">'+esc(dept)+'</span><span class="dept-cnt">'+filtered.length+'</span><span class="dept-chev">▼</span></div>';
-        predRows+='<div class="comp-list '+(autoOpen?'open':'')+'" id="'+deptId+'"><table class="comp-tbl"><thead><tr>';
+        predRows+='<div class="comp-list '+(autoOpen?'open':'')+'" id="'+deptId+'"><div style="overflow-x:auto;width:100%"><table class="comp-tbl" style="min-width:1400px"><thead><tr>';
         if(tipo==='comp'){
           predRows+='<th>Nome</th><th>Sistema</th><th>Fabricante</th><th>Modelo</th><th>ServiceTag</th><th>Cód Serviço</th><th>Início Gar.</th><th>Fim Gar.</th><th>Tempo</th><th>Memória</th><th>Processador</th><th>Armazenamento</th><th>Monitor</th><th>Usuário</th>';
         }else{
@@ -968,7 +985,7 @@ function _buildInv(openPred){
           }
           predRows+='</tr>';
         });
-        predRows+='</tbody></table></div>';
+        predRows+='</tbody></table></div></div>';
       });
       if(!anyMatch&&q)return;
       var predOpen=!!(q||pred===openPred);
@@ -2232,6 +2249,10 @@ function renderAtivos(){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+
 
 
 
