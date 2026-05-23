@@ -661,6 +661,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <script>
 
 
+
 var SB_URL = 'https://npuzwovluxbghjqiulwh.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdXp3b3ZsdXhiZ2hqcWl1bHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0ODkwNzgsImV4cCI6MjA5NTA2NTA3OH0.kaBISlm06OdwNdEvnuQhY6ouT4sCrFDogNa19JUBtRg';
 
@@ -1170,8 +1171,9 @@ function checkSession(){
   try{
     var sess=localStorage.getItem('wikiTicSess');if(!sess)return false;
     var s=JSON.parse(sess);
-    if(Date.now()-s.ts>8*60*60*1000){localStorage.removeItem('wikiTicSess');return false;}
-    var user=null;for(var i=0;i<USERS.length;i++)if(USERS[i].login===s.login&&USERS[i].active!==false){user=USERS[i];break;}
+    if(Date.now()-s.ts>24*60*60*1000){localStorage.removeItem('wikiTicSess');return false;}
+    var user=null;
+    for(var i=0;i<USERS.length;i++)if(USERS[i].login===s.login&&USERS[i].active!==false){user=USERS[i];break;}
     if(!user){localStorage.removeItem('wikiTicSess');return false;}
     currentUser=user;
     document.getElementById('login-screen').style.display='none';
@@ -1180,10 +1182,13 @@ function checkSession(){
     document.getElementById('t-av').textContent=user.name[0];
     if(user.role==='admin')document.getElementById('cfg-btn').style.display='flex';
     activeCat='dashboard';
-    loadFromSupabase(function(){
-      CATS.forEach(function(c){openCats[c.id]=true;});
-      renderSidebarNew();navSec('dash');
-    });
+    CATS.forEach(function(c){openCats[c.id]=true;});
+    renderSidebarNew();
+    navSec('dash');
+    // Sync Supabase in background without blocking
+    setTimeout(function(){
+      loadFromSupabase(function(){renderSidebarNew();});
+    },500);
     return true;
   }catch(e){return false;}
 }
@@ -1381,13 +1386,13 @@ function doLogin(){
     for(var i=0;i<CATS.length;i++)openCats[CATS[i].id]=true;
     user.last='agora';try{localStorage.setItem('wikiTicSess',JSON.stringify({login:user.login,ts:Date.now()}));}catch(e){}
     activeCat='dashboard';
-    loadFromSupabase(function(){
-      CATS.forEach(function(c){openCats[c.id]=true;});
-      activeCat='dashboard';
-      CATS.forEach(function(c){openCats[c.id]=true;});
-      renderSidebarNew();
-      navSec('dash');
-    });
+    CATS.forEach(function(c){openCats[c.id]=true;});
+    renderSidebarNew();
+    navSec('dash');
+    // Sync Supabase in background
+    setTimeout(function(){
+      loadFromSupabase(function(){renderSidebarNew();});
+    },500);
   }else{
     err.classList.add('show');
     document.getElementById('lp').value='';
@@ -2415,6 +2420,7 @@ function renderAtivos(){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 
 
 
