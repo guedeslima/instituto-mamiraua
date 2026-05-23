@@ -591,39 +591,30 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 <!-- ══ APP ═════════════════════════════════════════════ -->
 <div id="app">
-  <div class="topbar">
-    <div class="tb-logo"><div class="tb-dot"></div>Wiki TIC</div>
-    <span class="tb-sep">/</span><span class="tb-title">N1 Suporte</span>
-    <div class="tb-space"></div>
-    <div class="tb-user">
-      <div class="tb-avatar" id="t-av">A</div>
-      <span id="t-name">Admin</span>
-      <button class="tb-cfg" onclick="openCfg('sec-usuarios')" id="cfg-btn" style="display:none"><i class="ti ti-settings" style="font-size:13px" aria-hidden="true"></i> Configurações</button>
-      <button class="tb-logout" onclick="doLogout()">sair</button>
+  <div class="topbar" style="display:flex;align-items:center;gap:10px;padding:0 16px;height:48px;background:var(--green3);color:#fff;flex-shrink:0">
+    <span class="tb-title" style="font-size:14px;font-weight:500;color:#fff;flex:1" id="tb-title">Dashboard</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--green2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff" id="t-av">A</div>
+      <span style="font-size:12px;font-family:var(--mono);color:rgba(255,255,255,.85)" id="t-name">Admin</span>
+      <button class="tb-cfg" onclick="openCfg('sec-usuarios')" id="cfg-btn" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:var(--rs);padding:4px 10px;color:#fff;font-size:11px;cursor:pointer;font-family:var(--mono)">⚙ Configurações</button>
+      <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,.2);border-radius:var(--rs);padding:4px 10px;color:rgba(255,255,255,.7);font-size:11px;cursor:pointer;font-family:var(--mono)">sair</button>
     </div>
   </div>
-  <div class="searchbar">
-    <div class="sw"><span class="sw-icon"><i class="ti ti-search" aria-hidden="true"></i></span><input type="text" id="search-input" placeholder="Buscar processo, categoria ou passo..." oninput="doSearch()"></div>
-    <button class="hbtn" onclick="openProcM()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> Novo processo</button>
-    <button class="hbtn sec" onclick="openCatM()"><i class="ti ti-folder-plus" style="font-size:13px" aria-hidden="true"></i> Nova categoria</button>
-  </div>
-  <div class="main">
+  <div style="display:flex;flex:1;overflow:hidden">
     <div id="sidebar" style="width:230px;background:#1e4a1a;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto">
       <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1)">
-        <div style="font-size:13px;font-weight:600;color:#fff">Wiki TIC</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.35);font-family:var(--mono);margin-top:1px">IDSM Mamirauá</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">Instituto Mamirauá</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.35);font-family:var(--mono);margin-top:1px">Wiki TIC · IDSM</div>
       </div>
       <div id="sb-sections" style="flex:1;overflow-y:auto;padding:8px 10px"></div>
       <div style="padding:8px 10px;border-top:1px solid rgba(255,255,255,.08)">
-        <div class="sb-lnk" onclick="openCfg('sec-sistema')" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;margin-bottom:2px">⚙️ <span style="flex:1">Configurações</span></div>
-        <div class="sb-lnk" onclick="doLogout()" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s">↩ <span style="flex:1">Sair</span></div>
+        <div onclick="openCfg('sec-sistema')" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;margin-bottom:2px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">⚙️ <span>Configurações</span></div>
+        <div onclick="doLogout()" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">↩ <span>Sair</span></div>
       </div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-
-      <!-- DASHBOARD -->
       <div id="s-dash" style="display:none;flex:1;overflow-y:auto;padding:16px">
-        <div style="font-size:16px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:8px">📊 Dashboard</div>
+        <div style="font-size:16px;font-weight:500;margin-bottom:4px">📊 Dashboard</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Visão geral do inventário · IDSM Mamirauá</div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px" id="dash-cards"></div>
         <div style="display:grid;grid-template-columns:1fr 260px;gap:16px">
@@ -637,8 +628,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           </div>
         </div>
       </div>
-
-      <!-- INVENTÁRIO -->
       <div id="s-inv" style="display:none;flex:1;overflow:hidden;flex-direction:column">
         <div style="padding:14px;overflow-y:auto;flex:1">
           <div style="font-size:16px;font-weight:500;margin-bottom:4px" id="inv-title">🖥️ Computadores</div>
@@ -651,15 +640,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           <div id="inv-body"></div>
         </div>
       </div>
-
-      <!-- WIKI CONTENT (processos, estoque, listas) -->
       <div class="content" id="content" style="display:none;flex:1;overflow-y:auto;padding:16px"></div>
-
     </div>
   </div>
 </div>
 
 <script>
+
 
 // ── SUPABASE CONFIG ────────────────────────────────────
 var SB_URL = 'https://npuzwovluxbghjqiulwh.supabase.co';
@@ -686,23 +673,32 @@ var SB_LOADED=false;
 function showLoading(show){var el=document.getElementById('sb-loading');if(el)el.style.display=show?'flex':'none';}
 
 function loadFromSupabase(callback){
-  showLoading(true);
-  document.getElementById('login-screen').style.display='none';
-  Promise.all([sbGet('categorias'),sbGet('processos'),sbGet('listas'),sbGet('lista_itens'),sbGet('estoque_grupos'),sbGet('estoque_itens')]).then(function(results){
+  showLoading(false);
+  // Try Supabase but don't block if it fails
+  if(typeof SB_URL==='undefined'||!SB_URL){if(callback)callback();return;}
+  Promise.all([sbGet('categorias'),sbGet('processos'),sbGet('listas'),sbGet('lista_itens'),sbGet('estoque_grupos'),sbGet('estoque_itens')])
+  .then(function(results){
     var cats=results[0],procs=results[1],listas=results[2],listaItens=results[3],estoqueGrupos=results[4],estoqueItens=results[5];
-    if(!cats||cats.length===0){populateSupabase(callback);return;}
-    CATS=cats.map(function(c){return {id:c.id,label:c.label,icon:c.icon||'ti-folder'};});
-    PROCS=procs.map(function(p){return {id:p.id,cat:p.cat_id,icon:p.icon||'ti-file',label:p.label,branches:p.branches||[{label:'Padrao',steps:[]}]};});
-    LISTS=listas.map(function(l){
-      var itens=listaItens.filter(function(i){return i.lista_id===l.id;}).map(function(i){return {id:i.id,name:i.name,spec:i.spec||'',qtyStock:i.qty_stock||0,qty:i.qty||0,unit:i.unit||'un',link:i.link||'',status:i.status||'falta',obs:i.obs||''};});
-      return {id:l.id,name:l.name,icon:l.icon||'ti-list',desc:l.descricao||'',items:itens};
-    });
-    STOCK=estoqueGrupos.map(function(g){
-      var itens=estoqueItens.filter(function(i){return i.grupo_id===g.id;}).map(function(i){return {id:i.id,name:i.name,spec:i.spec||'',qty:i.qty||0,unit:i.unit||'un',condition:i.condition||'novo',inBox:!!i.in_box,batteryReplaced:!!i.battery_replaced,obs:i.obs||''};});
-      return {id:g.id,name:g.name,icon:g.icon||'ti-package',items:itens};
-    });
-    SB_LOADED=true;showLoading(false);if(callback)callback();
-  }).catch(function(err){console.error('Supabase erro:',err);showLoading(false);if(callback)callback();});
+    if(cats&&cats.length>0){
+      CATS=cats.map(function(c){return {id:c.id,label:c.label,icon:c.icon||'ti-folder'};});
+      PROCS=procs.map(function(p){return {id:p.id,cat:p.cat_id,icon:p.icon||'ti-file',label:p.label,branches:p.branches||[{label:'Padrao',steps:[]}]};});
+      LISTS=listas.map(function(l){
+        var itens=listaItens.filter(function(i){return i.lista_id===l.id;}).map(function(i){return {id:i.id,name:i.name,spec:i.spec||'',qtyStock:i.qty_stock||0,qty:i.qty||0,unit:i.unit||'un',link:i.link||'',status:i.status||'falta',obs:i.obs||''};});
+        return {id:l.id,name:l.name,icon:l.icon||'ti-list',desc:l.descricao||'',items:itens};
+      });
+      STOCK=estoqueGrupos.map(function(g){
+        var itens=estoqueItens.filter(function(i){return i.grupo_id===g.id;}).map(function(i){return {id:i.id,name:i.name,spec:i.spec||'',qty:i.qty||0,unit:i.unit||'un',condition:i.condition||'novo',inBox:!!i.in_box,batteryReplaced:!!i.battery_replaced,obs:i.obs||''};});
+        return {id:g.id,name:g.name,icon:g.icon||'ti-package',items:itens};
+      });
+      SB_LOADED=true;
+    } else {
+      populateSupabase(function(){});
+    }
+    if(callback)callback();
+  }).catch(function(err){
+    console.warn('Supabase offline - usando dados locais:',err);
+    if(callback)callback();
+  });
 }
 
 function populateSupabase(callback){
@@ -2236,6 +2232,7 @@ function renderAtivos(){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 
 
 
