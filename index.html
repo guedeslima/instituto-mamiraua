@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki TIC — N1 IDSM</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#3a7c2e;--green2:#4d9e3e;--green3:#2d6124;--green4:#1e4a1a;
+  --green-light:#e8f5e2;--green-border:#b8dba8;
+  --bg:#f4f6f3;--surface:#fff;--surface2:#f0f4ee;
+  --border:#d4ddd0;--border2:#b8c8b2;
+  --text:#1a2e16;--text2:#4a6640;--text3:#7a9470;
+  --amber:#7a5c00;--amber-bg:#fff8e1;--amber-bdr:#f0c040;
+  --red:#8b2020;--red-bg:#fff0f0;--red-bdr:#e08080;
+  --blue:#1a4a7a;--blue-bg:#e8f0fb;--blue-bdr:#a0c0e8;
+  --purple-bg:#EEEDFE;--purple:#3C3489;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --r:8px;--rs:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;overflow:hidden}
+
+/* ── LOGIN ─────────────────────────────────── */
+#login-screen{position:fixed;inset:0;z-index:200;background:var(--green4);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+.login-card{background:#fff;border-radius:16px;padding:40px 44px;width:360px;display:flex;flex-direction:column;gap:18px}
+.login-logo{text-align:center}
+.logo-badge{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:16px;background:var(--green);color:#fff;font-family:var(--mono);font-size:22px;font-weight:500;margin-bottom:14px}
+.login-logo h1{font-size:18px;font-weight:600;color:var(--text)}
+.login-logo p{font-size:12px;color:var(--text3);margin-top:3px;font-family:var(--mono)}
+.lf{display:flex;flex-direction:column;gap:5px}
+.lf label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.lf input{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s;width:100%}
+.lf input:focus{border-color:var(--green);outline:2px solid #3a7c2e22}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:36px}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0;line-height:1}
+.l-remember{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer;user-select:none}
+.l-remember input{accent-color:var(--green);width:14px;height:14px}
+.login-btn{background:var(--green);color:#fff;border:none;border-radius:var(--rs);padding:11px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.login-btn:hover{background:var(--green3)}
+.login-error{font-size:12px;color:var(--red);text-align:center;display:none}
+.login-error.show{display:block}
+.login-hint{font-size:11px;color:var(--text3);text-align:center;font-family:var(--mono);line-height:1.8}
+
+/* ── APP ───────────────────────────────────── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:10px;padding:0 20px;height:50px;background:var(--green3);color:#fff;flex-shrink:0}
+.tb-logo{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:500;font-size:14px}
+.tb-dot{width:8px;height:8px;border-radius:50%;background:var(--green-light)}
+.tb-sep{color:rgba(255,255,255,.4);margin:0 2px}
+.tb-title{font-size:13px;color:rgba(255,255,255,.7)}
+.tb-space{flex:1}
+.tb-user{display:flex;align-items:center;gap:8px;font-size:12px;font-family:var(--mono);color:rgba(255,255,255,.85)}
+.tb-avatar{width:30px;height:30px;border-radius:50%;background:var(--green2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:default}
+.tb-cfg{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:var(--rs);padding:4px 10px;color:#fff;font-size:11px;cursor:pointer;font-family:var(--mono);transition:background .2s;display:flex;align-items:center;gap:5px}
+.tb-cfg:hover{background:rgba(255,255,255,.25)}
+.tb-logout{background:none;border:1px solid rgba(255,255,255,.2);border-radius:var(--rs);padding:4px 10px;color:rgba(255,255,255,.7);font-size:11px;cursor:pointer;font-family:var(--mono);transition:all .2s}
+.tb-logout:hover{border-color:rgba(255,255,255,.5);color:#fff}
+
+/* SEARCHBAR */
+.searchbar{padding:8px 16px;background:var(--green);border-bottom:1px solid var(--green3);flex-shrink:0;display:flex;gap:8px;align-items:center}
+.sw{position:relative;flex:1}
+.sw input{width:100%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:var(--rs);padding:7px 12px 7px 32px;color:#fff;font-family:var(--mono);font-size:12px;outline:none;transition:background .2s}
+.sw input::placeholder{color:rgba(255,255,255,.55)}
+.sw input:focus{background:rgba(255,255,255,.25)}
+.sw-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.65);font-size:14px;pointer-events:none}
+.hbtn{background:#fff;color:var(--green3);border:none;border-radius:var(--rs);padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:opacity .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.hbtn:hover{opacity:.9}
+.hbtn.sec{background:var(--green-light);color:var(--green3)}
+
+/* MAIN LAYOUT */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;padding:10px 0}
+.sb-section{margin-bottom:2px}
+.sb-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:6px 14px 3px;font-family:var(--mono)}
+.sb-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:13px;font-family:var(--font);text-align:left;border-left:3px solid transparent;transition:all .15s}
+.sb-btn:hover{background:var(--green-light);color:var(--green3)}
+.sb-btn.active{background:var(--green-light);color:var(--green3);border-left-color:var(--green)}
+.sb-btn i{font-size:15px}.sb-btn span[style]{line-height:1}
+.sb-cnt{margin-left:auto;font-size:10px;font-family:var(--mono);background:var(--surface2);color:var(--text3);padding:1px 6px;border-radius:10px}
+.sb-btn.active .sb-cnt{background:var(--green);color:#fff}
+.sb-divider{border:none;border-top:1px solid var(--border);margin:6px 14px}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:16px}
+
+/* CATEGORY BLOCK */
+.cat-block{margin-bottom:8px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.cat-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--green);color:#fff;cursor:pointer;user-select:none;transition:background .15s}
+.cat-header:hover{background:var(--green3)}
+.cat-icon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cat-name{font-size:13px;font-weight:600;flex:1}
+.cat-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.2);color:#fff;font-family:var(--mono)}
+.cat-actions{display:flex;gap:4px;margin-left:6px}
+.cat-act{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:3px 7px;color:#fff;font-size:10px;cursor:pointer;transition:background .15s}
+.cat-act:hover{background:rgba(255,255,255,.3)}
+.cat-chev{font-size:13px;color:rgba(255,255,255,.8);transition:transform .25s;flex-shrink:0}
+.cat-header.open .cat-chev{transform:rotate(180deg)}
+.cat-body{display:none;background:var(--surface)}
+.cat-body.open{display:block}
+
+/* PROC ROW */
+.proc-row{display:flex;align-items:center;gap:10px;padding:9px 14px 9px 52px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.proc-row:last-child{border-bottom:none}
+.proc-row:hover,.proc-row.open{background:var(--green-light)}
+.pr-icon{font-size:15px;color:var(--green);width:22px;text-align:center;flex-shrink:0}
+.pr-name{font-size:13px;font-weight:500;flex:1}
+.pr-meta{display:flex;align-items:center;gap:6px}
+.pr-steps{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.pr-acts{display:flex;gap:4px}
+.pr-act{background:none;border:1px solid var(--border2);border-radius:4px;padding:2px 6px;color:var(--text3);font-size:10px;cursor:pointer;transition:all .15s}
+.pr-act:hover{border-color:var(--green);color:var(--green)}
+.pr-act.del:hover{border-color:var(--red);color:var(--red)}
+.pr-chev{font-size:11px;color:var(--text3);transition:transform .2s;margin-left:4px}
+.proc-row.open .pr-chev{transform:rotate(180deg)}
+
+/* STEPS PANEL */
+.steps-panel{display:none;background:var(--surface2);border-bottom:1px solid var(--border)}
+.steps-panel.open{display:block}
+.steps-inner{padding:14px 16px 14px 56px}
+
+.btabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.btab{padding:4px 12px;border-radius:14px;border:1px solid var(--border2);background:#fff;color:var(--text2);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.btab:hover{border-color:var(--green);color:var(--green)}
+.btab.on{background:var(--green);border-color:var(--green);color:#fff}
+.btab.dash{border-style:dashed}
+
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.prog-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.prog-lbl{font-size:10px;color:var(--text3);font-family:var(--mono);white-space:nowrap}
+
+.step-list{display:flex;flex-direction:column}
+.step-item{display:flex;gap:10px;position:relative}
+.step-item:not(:last-child)::after{content:'';position:absolute;left:13px;top:28px;bottom:0;width:1px;background:var(--border)}
+.step-num{width:26px;height:26px;border-radius:50%;background:#fff;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--mono);color:var(--text2);flex-shrink:0;z-index:1;cursor:pointer;transition:all .2s;margin-top:1px;font-weight:500}
+.step-num:hover{border-color:var(--green);color:var(--green)}
+.step-num.done{background:var(--green);border-color:var(--green);color:#fff}
+.step-body{flex:1;padding-bottom:12px}
+.step-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.step-code{background:var(--green4);border-radius:var(--rs);padding:6px 10px;font-family:var(--mono);font-size:11px;color:#a8d898;margin-top:5px;white-space:pre-wrap;word-break:break-all}
+.step-warn{background:var(--amber-bg);border-left:3px solid var(--amber-bdr);padding:5px 9px;font-size:11px;color:var(--amber);margin-top:5px;line-height:1.5}
+.step-info{background:var(--blue-bg);border-left:3px solid var(--blue-bdr);padding:5px 9px;font-size:11px;color:var(--blue);margin-top:5px;line-height:1.5}
+.chklist{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.chk{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);cursor:pointer;padding:3px 6px;border-radius:4px;user-select:none;transition:background .1s}
+.chk:hover{background:var(--green-light)}
+.chkbox{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .15s;color:transparent}
+.chk.done .chkbox{background:var(--green);border-color:var(--green);color:#fff}
+.chk.done .cl{text-decoration:line-through;color:var(--text3)}
+.step-act-row{display:flex;gap:3px;flex-shrink:0;margin-top:1px}
+.s-act{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text3);font-size:10px;cursor:pointer;transition:all .15s}
+.s-act:hover{border-color:var(--green);color:var(--green)}
+.s-act.del:hover{border-color:var(--red);color:var(--red)}
+
+.add-step-row{display:flex;gap:6px;padding:8px 16px 8px 56px;border-top:1px dashed var(--border);background:var(--surface2)}
+.asi{flex:1;background:#fff;border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-family:var(--font);font-size:12px;color:var(--text);outline:none}
+.asi:focus{border-color:var(--green)}
+.as-btn{background:var(--green);color:#fff;border:none;border-radius:var(--rs);padding:6px 11px;font-size:11px;font-weight:600;cursor:pointer}
+.as-btn:hover{background:var(--green3)}
+.as-btn.sec{background:var(--green3)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:500px;display:flex;flex-direction:column;max-height:92vh;overflow:hidden}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--green);flex-shrink:0}
+.mhead.dark{background:var(--green3)}
+.mhead-title{font-size:14px;font-weight:500;color:#fff;display:flex;align-items:center;gap:7px}
+.mhead-title i{font-size:17px}
+.mclose{background:rgba(255,255,255,.2);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mbody{padding:20px;display:flex;flex-direction:column;gap:13px;overflow-y:auto}
+.mf{display:flex;flex-direction:column;gap:5px}
+.mf label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:4px}
+.mf .req{color:var(--red);font-size:11px}
+.mf input,.mf textarea,.mf select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s}
+.mf input:focus,.mf textarea:focus,.mf select:focus{border-color:var(--green);outline:2px solid #3a7c2e22}
+.mf textarea{resize:vertical;min-height:70px;line-height:1.6}
+.mf .hint{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.minfo{background:var(--blue-bg);border-left:3px solid var(--blue-bdr);padding:7px 10px;font-size:11px;color:var(--blue);line-height:1.5;display:flex;gap:6px}
+.mwarn{background:var(--amber-bg);border-left:3px solid var(--amber-bdr);padding:7px 10px;font-size:11px;color:var(--amber);line-height:1.5;display:flex;gap:6px}
+.mdivider{border:none;border-top:1px solid var(--border)}
+.mfooter{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--surface2);flex-shrink:0}
+.mbtn{flex:1;padding:9px;border-radius:var(--rs);border:1px solid var(--border2);background:#fff;color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.mbtn:hover{background:var(--surface2)}
+.mbtn.ok{background:var(--green);border-color:var(--green);color:#fff;font-weight:500}
+.mbtn.ok:hover{background:var(--green3)}
+.mbtn.danger{border-color:var(--red-bdr);color:var(--red)}
+.mbtn.danger:hover{background:var(--red-bg)}
+
+/* ROLE OPTS */
+.role-opts{display:flex;gap:8px}
+.role-opt{flex:1;padding:10px;border-radius:var(--r);border:1.5px solid var(--border);cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+.role-opt i{font-size:20px;display:block;margin-bottom:5px;color:var(--text3)}
+.role-opt-label{font-size:12px;font-weight:500;color:var(--text)}
+.role-opt-desc{font-size:10px;color:var(--text3);margin-top:2px}
+.role-opt.on.admin{border-color:var(--green);background:var(--green-light)}
+.role-opt.on.admin i{color:var(--green3)}
+.role-opt.on.tech{border-color:#185FA5;background:var(--blue-bg)}
+.role-opt.on.tech i{color:#185FA5}
+
+/* PASSWORD */
+.pw-w{position:relative}
+.pw-w input{padding-right:36px}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0}
+.pstrength{height:3px;border-radius:2px;margin-top:5px;transition:all .3s;background:var(--border);width:100%}
+.pstrength.w{background:#e53935;width:33%}
+.pstrength.m{background:#f7a84f;width:66%}
+.pstrength.s{background:var(--green);width:100%}
+.pslbl{font-size:10px;margin-top:3px;color:var(--text3)}
+.pslbl.w{color:#e53935}
+.pslbl.m{color:#f7a84f}
+.pslbl.s{color:var(--green)}
+
+/* CHECKLIST BUILDER */
+.chk-build{display:flex;flex-direction:column;gap:4px}
+.chk-brow{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)}
+.chk-brow span{font-size:12px;flex:1;color:var(--text)}
+.chk-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 3px;line-height:1}
+.chk-del:hover{color:var(--red)}
+.chk-add-row{display:flex;gap:6px}
+.chk-add-row input{flex:1;background:#fff;border:1px solid var(--border2);border-radius:var(--rs);padding:5px 9px;font-size:12px;color:var(--text);outline:none;font-family:var(--font)}
+.chk-add-row input:focus{border-color:var(--green)}
+.chk-add-row button{background:var(--green);color:#fff;border:none;border-radius:var(--rs);padding:5px 10px;font-size:11px;cursor:pointer}
+
+/* ICON PREVIEW */
+.icon-prev{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:var(--rs);border:1px solid var(--border);font-size:12px;color:var(--text2);margin-top:4px}
+.icon-prev i{font-size:20px;color:var(--green)}
+
+/* BADGE OPTS */
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.badge-opt{padding:4px 10px;border-radius:12px;border:1px solid var(--border2);background:#fff;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;user-select:none;display:flex;align-items:center;gap:5px}
+.badge-opt.on{background:var(--green-light);border-color:var(--green);color:var(--green3)}
+
+/* CONFIGS PANEL */
+#cfg-panel{position:fixed;inset:0;z-index:150;display:none;background:rgba(0,0,0,.45);align-items:stretch;justify-content:flex-end}
+#cfg-panel.show{display:flex}
+.cfg-drawer{width:780px;max-width:95vw;background:var(--bg);display:flex;overflow:hidden;height:100%}
+.cfg-sb{width:210px;background:var(--green4);display:flex;flex-direction:column;flex-shrink:0}
+.cfg-sb-logo{padding:16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.cfg-sb-logo-t{font-size:13px;font-weight:500;color:#fff}
+.cfg-sb-logo-s{font-size:10px;color:rgba(255,255,255,.4);font-family:var(--mono);margin-top:2px}
+.cfg-nav{padding:8px 0;flex:1;overflow-y:auto}
+.cfg-nav-lbl{font-size:10px;font-weight:500;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;padding:6px 14px 3px;font-family:var(--mono)}
+.cfg-nav-btn{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;border-left:3px solid transparent;transition:all .15s;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left}
+.cfg-nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.cfg-nav-btn.active{background:rgba(255,255,255,.14);color:#fff;border-left-color:#a8d898}
+.cfg-nav-btn i{font-size:15px}
+.cfg-sb-footer{padding:12px 14px;border-top:1px solid rgba(255,255,255,.1)}
+.cfg-ver{font-size:10px;color:rgba(255,255,255,.25);font-family:var(--mono)}
+.cfg-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--surface)}
+.cfg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.cfg-head-left h2{font-size:15px;font-weight:500}
+.cfg-head-left p{font-size:11px;color:var(--text3);margin-top:2px}
+.cfg-close{background:none;border:1px solid var(--border2);border-radius:var(--rs);padding:5px 12px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:5px}
+.cfg-close:hover{background:var(--surface2)}
+.cfg-body{flex:1;overflow-y:auto;padding:20px}
+.cfg-section{display:none}
+.cfg-section.active{display:block}
+
+/* USER TABLE */
+.utop{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.utop h3{font-size:13px;font-weight:500}
+.utop p{font-size:11px;color:var(--text3);margin-top:1px}
+.add-u-btn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--rs);background:var(--green);border:none;color:#fff;font-size:12px;font-weight:500;cursor:pointer}
+.add-u-btn:hover{background:var(--green3)}
+.utable{width:100%;border-collapse:collapse;font-size:13px}
+.uthead th{text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;padding:7px 10px;border-bottom:1px solid var(--border);background:var(--surface2);font-family:var(--mono)}
+.utr{border-bottom:1px solid var(--border);transition:background .15s}
+.utr:hover{background:var(--surface2)}
+.utd{padding:11px 10px;vertical-align:middle}
+.u-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.u-name{font-weight:500;font-size:13px;color:var(--text)}
+.u-login{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px}
+.u-role{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.role-a{background:var(--green-light);color:var(--green3)}
+.role-t{background:var(--blue-bg);color:var(--blue)}
+.u-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.udot{width:7px;height:7px;border-radius:50%}
+.udot.on{background:var(--green)}
+.udot.off{background:var(--border2)}
+.u-acts{display:flex;gap:4px}
+.u-act{background:none;border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:3px}
+.u-act:hover{border-color:var(--green);color:var(--green)}
+.u-act.del:hover{border-color:var(--red);color:var(--red)}
+
+/* CFG SYSTEM */
+.cfg-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:12px}
+.cfg-card h4{font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--text)}
+.cfg-card h4 i{font-size:16px;color:var(--green)}
+.cfg-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.cfg-row:last-child{border-bottom:none}
+.cfg-row-label{font-size:12px;color:var(--text);flex:1}
+.cfg-row-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.cfg-toggle{position:relative;width:34px;height:19px;flex-shrink:0}
+.cfg-toggle input{opacity:0;width:0;height:0}
+.cfg-toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:10px;cursor:pointer;transition:background .2s}
+.cfg-toggle input:checked+.cfg-toggle-track{background:var(--green)}
+.cfg-toggle-thumb{position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none}
+.cfg-toggle input:checked~.cfg-toggle-thumb{transform:translateX(15px)}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.empty{text-align:center;padding:50px 20px;color:var(--text3)}
+.empty i{font-size:36px;display:block;margin-bottom:10px;color:var(--green-border)}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════ -->
+
+<div id="sb-loading" style="position:fixed;inset:0;background:rgba(30,74,26,.92);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
+  <div style="width:42px;height:42px;border:3px solid rgba(255,255,255,.2);border-top-color:#a8d898;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div style="color:#fff;font-size:14px;font-family:var(--mono)">Carregando dados...</div>
+  <div style="color:rgba(255,255,255,.5);font-size:11px">Conectando ao Supabase</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-badge">IDSM</div>
+      <h1>Instituto Mamiraua</h1>
+      <p>Procedimentos de TIC</p>
+    </div>
+    <div class="lf"><label>Usuário</label><input type="text" id="lu" placeholder="seu.nome" autocomplete="username"></div>
+    <div class="lf">
+      <label>Senha</label>
+      <div class="pw-wrap">
+        <input type="password" id="lp" placeholder="••••••" autocomplete="current-password">
+        <button class="pw-eye" onclick="togglePw('lp',this)" tabindex="-1"><i class="ti ti-eye" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <label class="l-remember"><input type="checkbox" checked> Manter conectado neste dispositivo</label>
+    <div class="login-error" id="lerr">Usuário ou senha incorretos</div>
+    <button class="login-btn" onclick="doLogin()">Entrar na Wiki TIC</button>
+    <div class="login-hint">Esqueceu a senha? Fale com o administrador da TIC.</div>
+  </div>
+</div>
+
+<!-- ══ MODALS ══════════════════════════════════════════ -->
+
+<!-- PROC MODAL -->
+<div class="modal-overlay" id="m-proc">
+  <div class="modal">
+    <div class="mhead" id="mh-proc"><div class="mhead-title"><i class="ti ti-file-plus" aria-hidden="true"></i><span id="mh-proc-t">Novo processo</span></div><button class="mclose" onclick="closeM('m-proc')">✕</button></div>
+    <div class="mbody">
+      <div class="grid2">
+        <div class="mf" style="grid-column:1/-1"><label>Nome do processo <span class="req">*</span></label><input type="text" id="mp-name" placeholder="Ex: Criar usuário no AD"></div>
+        <div class="mf"><label>Categoria <span class="req">*</span></label><select id="mp-cat"></select></div>
+        <div class="mf"><label>Ícone</label><input type="text" id="mp-icon" placeholder="ti-file" oninput="updIcon()"><div class="icon-prev" id="icon-prev"><i class="ti ti-file" id="icon-prev-i" aria-hidden="true"></i><span id="icon-prev-t">ti-file</span></div></div>
+      </div>
+      <div class="mf"><label>Descrição curta</label><input type="text" id="mp-desc" placeholder="Uma linha sobre o processo"></div>
+      <div class="mf"><label>Fluxos alternativos</label>
+        <div class="badge-row" id="br-flux">
+          <span class="badge-opt on" onclick="selBadge(this,'br-flux')"><i class="ti ti-git-branch" style="font-size:12px" aria-hidden="true"></i> Padrão (1 fluxo)</span>
+          <span class="badge-opt" onclick="selBadge(this,'br-flux')"><i class="ti ti-git-fork" style="font-size:12px" aria-hidden="true"></i> Com fluxo alternativo</span>
+        </div>
+      </div>
+      <div class="mf"><label>Passos iniciais <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--text3)">opcional — um por linha</span></label><textarea id="mp-steps" placeholder="1. Passo um&#10;2. Passo dois&#10;3. Passo três"></textarea><div class="hint">Após salvar, adicione detalhes, código, avisos e checklists em cada passo.</div></div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-proc')">Cancelar</button><button class="mbtn ok" onclick="saveProc()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Salvar processo</button></div>
+  </div>
+</div>
+
+<!-- CAT MODAL -->
+<div class="modal-overlay" id="m-cat">
+  <div class="modal" style="max-width:380px">
+    <div class="mhead" id="mh-cat"><div class="mhead-title"><i class="ti ti-folder-plus" aria-hidden="true"></i><span id="mh-cat-t">Nova categoria</span></div><button class="mclose" onclick="closeM('m-cat')">✕</button></div>
+    <div class="mbody">
+      <div class="mf"><label>Nome da categoria <span class="req">*</span></label><input type="text" id="mc-name" placeholder="Ex: Inventário & Estoque"></div>
+      <div class="mf"><label>Ícone (Tabler)</label><input type="text" id="mc-icon" placeholder="ti-package" oninput="updCatIcon()"><div class="icon-prev" id="cat-icon-prev"><i class="ti ti-package" id="cat-icon-prev-i" aria-hidden="true"></i><span id="cat-icon-prev-t">ti-package</span></div></div>
+      <div class="mf"><label>Sugestões</label>
+        <div class="badge-row">
+          <span class="badge-opt" onclick="setCatIcon('ti-package',this)"><i class="ti ti-package" style="font-size:12px" aria-hidden="true"></i> ti-package</span>
+          <span class="badge-opt" onclick="setCatIcon('ti-printer',this)"><i class="ti ti-printer" style="font-size:12px" aria-hidden="true"></i> ti-printer</span>
+          <span class="badge-opt" onclick="setCatIcon('ti-server',this)"><i class="ti ti-server" style="font-size:12px" aria-hidden="true"></i> ti-server</span>
+          <span class="badge-opt" onclick="setCatIcon('ti-wifi',this)"><i class="ti ti-wifi" style="font-size:12px" aria-hidden="true"></i> ti-wifi</span>
+          <span class="badge-opt" onclick="setCatIcon('ti-database',this)"><i class="ti ti-database" style="font-size:12px" aria-hidden="true"></i> ti-database</span>
+          <span class="badge-opt" onclick="setCatIcon('ti-clipboard',this)"><i class="ti ti-clipboard" style="font-size:12px" aria-hidden="true"></i> ti-clipboard</span>
+        </div>
+      </div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-cat')">Cancelar</button><button class="mbtn ok" onclick="saveCat()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Salvar categoria</button></div>
+  </div>
+</div>
+
+<!-- STEP MODAL -->
+<div class="modal-overlay" id="m-step">
+  <div class="modal">
+    <div class="mhead" id="mh-step"><div class="mhead-title"><i class="ti ti-list-check" aria-hidden="true"></i><span id="mh-step-t">Novo passo</span></div><button class="mclose" onclick="closeM('m-step')">✕</button></div>
+    <div class="mbody">
+      <div class="mf"><label>Título <span class="req">*</span></label><input type="text" id="ms-title" placeholder="Ex: Abrir o Active Directory"></div>
+      <div class="mf"><label>Descrição</label><textarea id="ms-desc" placeholder="Detalhes sobre este passo..."></textarea></div>
+      <div class="mf"><label>Código / Comando <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--text3)">opcional</span></label><textarea id="ms-code" placeholder="Ex: winget upgrade --all" style="min-height:50px"></textarea></div>
+      <div class="mdivider"></div>
+      <div class="grid2">
+        <div class="mf"><label>Aviso ⚠️</label><input type="text" id="ms-warn" placeholder="Ex: Fazer backup antes..."></div>
+        <div class="mf"><label>Informação ℹ️</label><input type="text" id="ms-info" placeholder="Ex: Usar autenticador"></div>
+      </div>
+      <div class="mf"><label>Checklist <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--text3)">opcional</span></label>
+        <div class="chk-build" id="chk-build"></div>
+        <div class="chk-add-row"><input type="text" id="chk-new-inp" placeholder="Adicionar item ao checklist..." onkeydown="if(event.key==='Enter')addChkItem()"><button onclick="addChkItem()">+ Adicionar</button></div>
+      </div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-step')">Cancelar</button><button class="mbtn ok" onclick="saveStep()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Salvar passo</button></div>
+  </div>
+</div>
+
+<!-- USER MODAL -->
+<div class="modal-overlay" id="m-user">
+  <div class="modal" style="max-width:440px">
+    <div class="mhead" id="mh-user"><div class="mhead-title"><i class="ti ti-user-plus" aria-hidden="true"></i><span id="mh-user-t">Adicionar usuário</span></div><button class="mclose" onclick="closeM('m-user')">✕</button></div>
+    <div class="mbody">
+      <div class="grid2">
+        <div class="mf"><label>Nome completo <span class="req">*</span></label><input type="text" id="mu-name" placeholder="Ex: Pedro Alves"></div>
+        <div class="mf"><label>Login <span class="req">*</span></label><input type="text" id="mu-login" placeholder="Ex: pedro" style="font-family:var(--mono)"><div class="hint">Sem espaços ou acentos.</div></div>
+      </div>
+      <div class="mf"><label>Perfil de acesso</label>
+        <div class="role-opts" id="role-opts">
+          <div class="role-opt tech on" onclick="selRole(this,'tech')"><i class="ti ti-tool" aria-hidden="true"></i><div class="role-opt-label">Técnico</div><div class="role-opt-desc">Consulta e marca passos</div></div>
+          <div class="role-opt admin" onclick="selRole(this,'admin')"><i class="ti ti-shield-check" aria-hidden="true"></i><div class="role-opt-label">Administrador</div><div class="role-opt-desc">Edita tudo + gerencia usuários</div></div>
+        </div>
+      </div>
+      <div class="mdivider"></div>
+      <div class="mf"><label>Senha <span class="req">*</span></label><div class="pw-w"><input type="password" id="mu-pass" placeholder="Mínimo 6 caracteres" oninput="chkStr('mu-pass','ps-mu','psl-mu')"><button class="pw-eye" onclick="togglePw('mu-pass',this)"><i class="ti ti-eye" aria-hidden="true"></i></button></div><div class="pstrength" id="ps-mu"></div><div class="pslbl" id="psl-mu">Digite a senha</div></div>
+      <div class="mf"><label>Confirmar senha <span class="req">*</span></label><div class="pw-w"><input type="password" id="mu-pass2" placeholder="Repita a senha"><button class="pw-eye" onclick="togglePw('mu-pass2',this)"><i class="ti ti-eye" aria-hidden="true"></i></button></div></div>
+      <div class="minfo"><i class="ti ti-info-circle" style="font-size:13px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i> Use letras maiúsculas, números e símbolos para uma senha forte. Ex: Pedro@2024</div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-user')">Cancelar</button><button class="mbtn ok" onclick="saveUser()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Criar usuário</button></div>
+  </div>
+</div>
+
+<!-- PASS MODAL -->
+<div class="modal-overlay" id="m-pass">
+  <div class="modal" style="max-width:400px">
+    <div class="mhead dark"><div class="mhead-title"><i class="ti ti-key" aria-hidden="true"></i> Trocar senha</div><button class="mclose" onclick="closeM('m-pass')">✕</button></div>
+    <div class="mbody">
+      <div id="m-pass-user-info" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--rs);border:1px solid var(--border)"></div>
+      <div class="mf"><label>Nova senha <span class="req">*</span></label><div class="pw-w"><input type="password" id="mp-pass1" placeholder="Nova senha" oninput="chkStr('mp-pass1','ps-mp','psl-mp')"><button class="pw-eye" onclick="togglePw('mp-pass1',this)"><i class="ti ti-eye" aria-hidden="true"></i></button></div><div class="pstrength" id="ps-mp"></div><div class="pslbl" id="psl-mp">Digite a nova senha</div></div>
+      <div class="mf"><label>Confirmar senha <span class="req">*</span></label><div class="pw-w"><input type="password" id="mp-pass2" placeholder="Confirmar senha"><button class="pw-eye" onclick="togglePw('mp-pass2',this)"><i class="ti ti-eye" aria-hidden="true"></i></button></div></div>
+      <div class="mf"><label style="font-size:12px;text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;display:flex;align-items:center;gap:7px"><input type="checkbox" id="mp-force" checked style="accent-color:var(--green);width:14px;height:14px"> Forçar troca no próximo login</label></div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-pass')">Cancelar</button><button class="mbtn ok" onclick="savePw()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Alterar senha</button></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="m-confirm">
+  <div class="modal" style="max-width:360px">
+    <div class="mhead" style="background:#8b2020"><div class="mhead-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Confirmar exclusão</div><button class="mclose" onclick="closeM('m-confirm')">✕</button></div>
+    <div class="mbody"><p id="m-confirm-msg" style="font-size:13px;color:var(--text2);line-height:1.6"></p></div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-confirm')">Cancelar</button><button class="mbtn danger" id="m-confirm-ok"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i> Excluir</button></div>
+  </div>
+</div>
+
+
+<!-- LIST ITEM MODAL -->
+<div class="modal-overlay" id="m-list-item">
+  <div class="modal" style="max-width:520px">
+    <div class="mhead" id="mh-litem"><div class="mhead-title"><i class="ti ti-list-check"></i><span id="mh-litem-t">Adicionar item</span></div><button class="mclose" onclick="closeM('m-list-item')">&#x2715;</button></div>
+    <div class="mbody">
+      <div class="mf"><label>Nome / Categoria do item <span class="req">*</span></label><input type="text" id="li-name" placeholder="Ex: Memorias RAM, SSD, Cabo de rede, Velcro..."></div>
+      <div class="mf"><label>Especificacao tecnica detalhada</label><input type="text" id="li-spec" placeholder="Ex: DDR4 3200MHz 8GB — Kingston KVR32N22S8/8"></div>
+      <div class="grid2">
+        <div class="mf"><label>Qtd em estoque</label><input type="number" id="li-qty-stock" min="0" value="0" placeholder="0"></div>
+        <div class="mf"><label>Qtd a comprar</label><input type="number" id="li-qty" min="0" value="1" placeholder="1"></div>
+      </div>
+      <div class="grid2">
+        <div class="mf"><label>Unidade</label>
+          <select id="li-unit">
+            <option value="un">un (unidade)</option>
+            <option value="cx">cx (caixa)</option>
+            <option value="rolo">rolo</option>
+            <option value="par">par</option>
+            <option value="kit">kit</option>
+            <option value="m">m (metro)</option>
+            <option value="tiras">tiras</option>
+            <option value="pct">pct (pacote)</option>
+          </select>
+        </div>
+        <div class="mf"><label>Status</label>
+          <select id="li-status">
+            <option value="falta">Precisa comprar</option>
+            <option value="pouco">Estoque baixo</option>
+            <option value="ok">Tem em estoque</option>
+            <option value="comprado">Pedido realizado</option>
+          </select>
+        </div>
+      </div>
+      <div class="mf"><label>Link do produto (opcional)</label><input type="url" id="li-link" placeholder="https://..."></div>
+      <div class="mf"><label>Observacoes</label><textarea id="li-obs" placeholder="Ex: Computadores que usam DDR4: Dell Optiplex 7080, Latitude 5420. Urgente." style="min-height:60px"></textarea></div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-list-item')">Cancelar</button><button class="mbtn ok" onclick="saveListItem()"><i class="ti ti-check" style="font-size:12px"></i> Salvar item</button></div>
+  </div>
+</div>
+
+<!-- ══ APP ═════════════════════════════════════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo"><div class="tb-dot"></div>Wiki TIC</div>
+    <span class="tb-sep">/</span><span class="tb-title">N1 Suporte</span>
+    <div class="tb-space"></div>
+    <div class="tb-user">
+      <div class="tb-avatar" id="t-av">A</div>
+      <span id="t-name">Admin</span>
+      <button class="tb-cfg" onclick="openCfg('sec-usuarios')" id="cfg-btn" style="display:none"><i class="ti ti-settings" style="font-size:13px" aria-hidden="true"></i> Configurações</button>
+      <button class="tb-logout" onclick="doLogout()">sair</button>
+    </div>
+  </div>
+  <div class="searchbar">
+    <div class="sw"><span class="sw-icon"><i class="ti ti-search" aria-hidden="true"></i></span><input type="text" id="search-input" placeholder="Buscar processo, categoria ou passo..." oninput="doSearch()"></div>
+    <button class="hbtn" onclick="openProcM()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> Novo processo</button>
+    <button class="hbtn sec" onclick="openCatM()"><i class="ti ti-folder-plus" style="font-size:13px" aria-hidden="true"></i> Nova categoria</button>
+  </div>
+  <div class="main">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- ══ CFG DRAWER ══════════════════════════════════════ -->
+<div id="cfg-panel">
+  <div class="cfg-drawer">
+    <div class="cfg-sb">
+      <div class="cfg-sb-logo"><div class="cfg-sb-logo-t">Configurações</div><div class="cfg-sb-logo-s">Wiki TIC · IDSM</div></div>
+      <div class="cfg-nav">
+        <div class="cfg-nav-lbl">Acesso</div>
+        <button class="cfg-nav-btn active" onclick="showCfgSec('sec-usuarios',this)"><i class="ti ti-users" aria-hidden="true"></i> Usuários</button>
+        <button class="cfg-nav-btn" onclick="showCfgSec('sec-perms',this)"><i class="ti ti-lock" aria-hidden="true"></i> Permissões</button>
+        <div class="cfg-nav-lbl" style="margin-top:8px">Wiki</div>
+        <button class="cfg-nav-btn" onclick="showCfgSec('sec-cats',this)"><i class="ti ti-category" aria-hidden="true"></i> Categorias</button>
+        <button class="cfg-nav-btn" onclick="showCfgSec('sec-sistema',this)"><i class="ti ti-settings" aria-hidden="true"></i> Sistema</button>
+      </div>
+      <div class="cfg-sb-footer"><div class="cfg-ver">Wiki TIC v1.0 · IDSM Mamirauá</div></div>
+    </div>
+    <div class="cfg-main">
+      <div class="cfg-head">
+        <div class="cfg-head-left"><h2 id="cfg-head-title">Usuários</h2><p id="cfg-head-sub">Gerencie quem pode acessar a Wiki TIC</p></div>
+        <button class="cfg-close" onclick="closeCfg()"><i class="ti ti-x" style="font-size:13px" aria-hidden="true"></i> Fechar</button>
+      </div>
+      <div class="cfg-body">
+        <!-- USUÁRIOS -->
+        <div class="cfg-section active" id="sec-usuarios">
+          <div class="utop">
+            <div><h3>Técnicos cadastrados</h3><p id="u-count-lbl">4 usuários ativos</p></div>
+            <button class="add-u-btn" onclick="openUserM()"><i class="ti ti-user-plus" style="font-size:13px" aria-hidden="true"></i> Adicionar usuário</button>
+          </div>
+          <table class="utable">
+            <thead class="uthead"><tr><th></th><th>Nome / Login</th><th>Perfil</th><th>Status</th><th>Último acesso</th><th></th></tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+        <!-- PERMISSÕES -->
+        <div class="cfg-section" id="sec-perms">
+          <div class="cfg-card"><h4><i class="ti ti-shield" aria-hidden="true"></i> Perfil: Técnico</h4>
+            <div class="cfg-row"><div><div class="cfg-row-label">Visualizar processos e passos</div></div><label class="cfg-toggle"><input type="checkbox" checked><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+            <div class="cfg-row"><div><div class="cfg-row-label">Marcar passos como concluídos</div></div><label class="cfg-toggle"><input type="checkbox" checked><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+            <div class="cfg-row"><div><div class="cfg-row-label">Adicionar novos processos</div></div><label class="cfg-toggle"><input type="checkbox"><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+            <div class="cfg-row"><div><div class="cfg-row-label">Editar processos existentes</div></div><label class="cfg-toggle"><input type="checkbox"><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+            <div class="cfg-row"><div><div class="cfg-row-label">Excluir processos</div></div><label class="cfg-toggle"><input type="checkbox"><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+          </div>
+          <div class="cfg-card"><h4><i class="ti ti-shield-check" aria-hidden="true"></i> Perfil: Administrador</h4>
+            <div class="cfg-row"><div><div class="cfg-row-label">Acesso total — todas as funções</div><div class="cfg-row-sub">Inclui gerenciar usuários, categorias e configurações</div></div><label class="cfg-toggle"><input type="checkbox" checked disabled><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+          </div>
+        </div>
+        <!-- CATEGORIAS -->
+        <div class="cfg-section" id="sec-cats">
+          <div class="utop"><div><h3>Categorias cadastradas</h3><p id="cat-count-lbl">carregando...</p></div><button class="add-u-btn" onclick="openCatM()"><i class="ti ti-folder-plus" style="font-size:13px" aria-hidden="true"></i> Nova categoria</button></div>
+          <div id="cats-list"></div>
+        </div>
+        <!-- SISTEMA -->
+        <div class="cfg-section" id="sec-sistema">
+          <div class="cfg-card"><h4><i class="ti ti-login" aria-hidden="true"></i> Nome do sistema e tela de login</h4>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="mf"><label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Nome do sistema (topbar + sidebar)</label><input type="text" id="cfg-app-name" oninput="updateAppNamePreview()" placeholder="Ex: Wiki TIC" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:100%"><div style="font-size:11px;color:var(--text3);margin-top:4px">Aparece na barra superior e no menu lateral.</div></div>
+              <hr style="border:none;border-top:1px solid var(--border);margin:4px 0">
+              <div class="mf"><label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Sigla (badge)</label><input type="text" id="cfg-login-badge" oninput="updateLoginPreview()" placeholder="Ex: IDSM" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:100%"></div>
+              <div class="mf"><label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Titulo principal</label><input type="text" id="cfg-login-title" oninput="updateLoginPreview()" placeholder="Ex: Instituto Mamiraua" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:100%"></div>
+              <div class="mf"><label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Subtitulo</label><input type="text" id="cfg-login-sub" oninput="updateLoginPreview()" placeholder="Ex: Procedimentos de TIC" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:100%"></div>
+              <div class="mf">
+                <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Cor do badge</label>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap" id="cfg-color-opts">
+                  <div onclick="setBadgeColor('#3a7c2e',this)" title="Verde IDSM" style="width:30px;height:30px;border-radius:7px;background:#3a7c2e;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 2px #3a7c2e"></div>
+                  <div onclick="setBadgeColor('#185FA5',this)" title="Azul" style="width:30px;height:30px;border-radius:7px;background:#185FA5;cursor:pointer;border:3px solid transparent"></div>
+                  <div onclick="setBadgeColor('#8b2020',this)" title="Vermelho" style="width:30px;height:30px;border-radius:7px;background:#8b2020;cursor:pointer;border:3px solid transparent"></div>
+                  <div onclick="setBadgeColor('#534AB7',this)" title="Roxo" style="width:30px;height:30px;border-radius:7px;background:#534AB7;cursor:pointer;border:3px solid transparent"></div>
+                  <div onclick="setBadgeColor('#0F6E56',this)" title="Verde escuro" style="width:30px;height:30px;border-radius:7px;background:#0F6E56;cursor:pointer;border:3px solid transparent"></div>
+                  <div onclick="setBadgeColor('#1e4a1a',this)" title="Verde floresta" style="width:30px;height:30px;border-radius:7px;background:#1e4a1a;cursor:pointer;border:3px solid transparent"></div>
+                  <div onclick="setBadgeColor('#7a5c00',this)" title="Dourado" style="width:30px;height:30px;border-radius:7px;background:#7a5c00;cursor:pointer;border:3px solid transparent"></div>
+                  <div onclick="setBadgeColor('#333333',this)" title="Cinza escuro" style="width:30px;height:30px;border-radius:7px;background:#333;cursor:pointer;border:3px solid transparent"></div>
+                  <input type="color" id="cfg-badge-color-pick" value="#3a7c2e" onchange="setBadgeColorCustom(this.value)" title="Cor personalizada" style="width:30px;height:30px;border-radius:7px;border:2px solid var(--border2);cursor:pointer;padding:1px;background:none">
+                </div>
+              </div>
+              <div style="background:var(--surface2);border-radius:var(--rs);padding:14px;text-align:center;border:1px solid var(--border)">
+                <div style="font-size:10px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Preview em tempo real</div>
+                <div style="display:inline-flex;flex-direction:column;align-items:center;gap:6px">
+                  <div id="prev-badge" style="width:52px;height:52px;border-radius:14px;background:#3a7c2e;color:#fff;font-family:var(--mono);font-size:20px;font-weight:500;display:flex;align-items:center;justify-content:center">IDSM</div>
+                  <div id="prev-title" style="font-size:15px;font-weight:600;color:var(--text)">Instituto Mamiraua</div>
+                  <div id="prev-sub" style="font-size:11px;color:var(--text3);font-family:var(--mono)">Procedimentos de TIC</div>
+                </div>
+              </div>
+              <button onclick="applyLoginConfig()" style="background:var(--green);color:#fff;border:none;border-radius:var(--rs);padding:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%">Aplicar na tela de login</button>
+            </div>
+          </div>
+          <div class="cfg-card"><h4><i class="ti ti-adjustments" aria-hidden="true"></i> Preferências gerais</h4>
+            <div class="cfg-row"><div><div class="cfg-row-label">Abrir todas as categorias ao entrar</div></div><label class="cfg-toggle"><input type="checkbox" checked><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+            <div class="cfg-row"><div><div class="cfg-row-label">Confirmar antes de excluir</div></div><label class="cfg-toggle"><input type="checkbox" checked><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+            <div class="cfg-row"><div><div class="cfg-row-label">Resetar checklists ao fechar processo</div></div><label class="cfg-toggle"><input type="checkbox"><div class="cfg-toggle-track"></div><div class="cfg-toggle-thumb"></div></label></div>
+          </div>
+          <div class="cfg-card"><h4><i class="ti ti-database-export" aria-hidden="true"></i> Dados</h4>
+            <div class="cfg-row"><div><div class="cfg-row-label">Exportar todos os processos</div><div class="cfg-row-sub">Baixar como arquivo JSON para backup</div></div><button onclick="exportData()" style="background:var(--green);color:#fff;border:none;border-radius:var(--rs);padding:5px 12px;font-size:12px;cursor:pointer"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Exportar</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal-overlay" id="m-stock-item">
+  <div class="modal" style="max-width:480px">
+    <div class="mhead"><div class="mhead-title"><span id="mh-stock-t">Adicionar item ao estoque</span></div><button class="mclose" onclick="closeM('m-stock-item')">&#x2715;</button></div>
+    <div class="mbody">
+      <div class="mf"><label>Nome do item *</label><input type="text" id="si-name" placeholder="Ex: Nobreak APC 1500VA, SSD SATA 480GB..."></div>
+      <div class="mf"><label>Especificacao / Referencia</label><input type="text" id="si-spec" placeholder="Ex: APC BE1500G2-BR, 865W, 1500VA"></div>
+      <div class="grid2">
+        <div class="mf"><label>Quantidade</label><input type="number" id="si-qty" min="0" value="1"></div>
+        <div class="mf"><label>Unidade</label><select id="si-unit"><option value="un">un</option><option value="cx">cx</option><option value="kit">kit</option><option value="par">par</option></select></div>
+      </div>
+      <div class="mf"><label>Estado</label>
+        <select id="si-condition">
+          <option value="novo">Novo</option>
+          <option value="usado">Usado</option>
+          <option value="defeito">Com defeito</option>
+          <option value="emprestado">Emprestado</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--rs);border:1px solid var(--border)">
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" id="si-inbox" style="accent-color:var(--green);width:16px;height:16px"> Na caixa original</label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" id="si-battery" style="accent-color:var(--green);width:16px;height:16px"> Bateria ja foi trocada (nobreaks)</label>
+      </div>
+      <div class="mf"><label>Observacoes</label><textarea id="si-obs" placeholder="Ex: Bateria trocada em jun/2024. Novo lacrado." style="min-height:55px"></textarea></div>
+    </div>
+    <div class="mfooter"><button class="mbtn" onclick="closeM('m-stock-item')">Cancelar</button><button class="mbtn ok" onclick="saveStockItem()">Salvar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-flow" style="padding:10px;align-items:flex-start;padding-top:20px">
+  <div class="modal" style="max-width:92vw;width:92vw;max-height:90vh;display:flex;flex-direction:column;border-radius:12px">
+    <div class="mhead" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--green)">
+      <div style="display:flex;align-items:center;gap:8px;color:#fff;font-size:14px;font-weight:500">
+        <span>&#9906;</span>
+        <span id="flow-proc-title">Fluxo do processo</span>
+      </div>
+      <button class="mclose" onclick="closeM('m-flow')" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px">&#x2715;</button>
+    </div>
+    <div id="flow-branch-tabs" style="display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;flex-wrap:wrap"></div>
+    <div style="flex:1;overflow:auto;padding:14px;background:var(--surface2)">
+      <div id="flow-canvas" style="position:relative;min-width:700px;min-height:380px">
+        <svg id="flow-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible">
+          <defs><marker id="farr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        </svg>
+      </div>
+    </div>
+    <div style="padding:8px 14px;border-top:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><div style="width:12px;height:8px;border-radius:2px;background:#FAECE7;border:1px solid #F0997B"></div>Verificacao</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><div style="width:12px;height:8px;border-radius:2px;background:var(--blue-bg);border:1px solid var(--blue-bdr)"></div>Navegacao</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><div style="width:12px;height:8px;border-radius:2px;background:var(--green-light);border:1px solid var(--green-border)"></div>Acao</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><div style="width:12px;height:8px;border-radius:2px;background:var(--amber-bg);border:1px solid var(--amber-bdr)"></div>Aviso</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><div style="width:12px;height:8px;border-radius:2px;background:var(--blue-bg);border:1px solid #85B7EB"></div>Info</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><div style="width:12px;height:8px;border-radius:2px;background:var(--blue-bg);border:1px solid #85B7EB"></div>Info</div>
+        </div>
+        <div style="margin-left:auto;font-size:10px;color:var(--text3);font-style:italic">Passe o mouse nos nos para ver detalhes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// ── SUPABASE CONFIG ────────────────────────────────────
+var SB_URL = 'https://npuzwovluxbghjqiulwh.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdXp3b3ZsdXhiZ2hqcWl1bHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0ODkwNzgsImV4cCI6MjA5NTA2NTA3OH0.kaBISlm06OdwNdEvnuQhY6ouT4sCrFDogNa19JUBtRg';
+
+function sbHeaders(){
+  return {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+}
+
+function sbGet(table, params){
+  var url = SB_URL + '/rest/v1/' + table + '?order=criado_em.asc';
+  if(params) url += '&' + params;
+  return fetch(url, {method:'GET', headers: sbHeaders()}).then(function(r){return r.json();});
+}
+
+function sbPost(table, data){
+  return fetch(SB_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: sbHeaders(),
+    body: JSON.stringify(data)
+  }).then(function(r){return r.json();});
+}
+
+function sbPatch(table, id, data){
+  return fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+    method: 'PATCH',
+    headers: sbHeaders(),
+    body: JSON.stringify(data)
+  }).then(function(r){return r.json();});
+}
+
+function sbDelete(table, id){
+  return fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+    method: 'DELETE',
+    headers: sbHeaders()
+  });
+}
+
+// ── CARREGAR DADOS DO SUPABASE ─────────────────────────
+var SB_LOADED = false;
+
+function loadFromSupabase(callback){
+  showLoading(true);
+  Promise.all([
+    sbGet('categorias'),
+    sbGet('processos'),
+    sbGet('listas'),
+    sbGet('lista_itens'),
+    sbGet('estoque_grupos'),
+    sbGet('estoque_itens')
+  ]).then(function(results){
+    var cats = results[0];
+    var procs = results[1];
+    var listas = results[2];
+    var listaItens = results[3];
+    var estoqueGrupos = results[4];
+    var estoqueItens = results[5];
+
+    // Se banco vazio, usar dados padrão e popular
+    if(!cats || cats.length === 0){
+      populateSupabase(callback);
+      return;
+    }
+
+    // Mapear categorias
+    CATS = cats.map(function(c){return {id:c.id, label:c.label, icon:c.icon||'ti-folder'};});
+
+    // Mapear processos
+    PROCS = procs.map(function(p){return {id:p.id, cat:p.cat_id, icon:p.icon||'ti-file', label:p.label, branches:p.branches||[{label:'Padrao',steps:[]}]};});
+
+    // Mapear listas com itens
+    LISTS = listas.map(function(l){
+      var itens = listaItens.filter(function(i){return i.lista_id === l.id;}).map(function(i){
+        return {id:i.id, name:i.name, spec:i.spec||'', qtyStock:i.qty_stock||0, qty:i.qty||0, unit:i.unit||'un', link:i.link||'', status:i.status||'falta', obs:i.obs||''};
+      });
+      return {id:l.id, name:l.name, icon:l.icon||'ti-list', desc:l.descricao||'', items:itens};
+    });
+
+    // Mapear estoque com itens
+    STOCK = estoqueGrupos.map(function(g){
+      var itens = estoqueItens.filter(function(i){return i.grupo_id === g.id;}).map(function(i){
+        return {id:i.id, name:i.name, spec:i.spec||'', qty:i.qty||0, unit:i.unit||'un', condition:i.condition||'novo', inBox:!!i.in_box, batteryReplaced:!!i.battery_replaced, obs:i.obs||''};
+      });
+      return {id:g.id, name:g.name, icon:g.icon||'ti-package', items:itens};
+    });
+
+    SB_LOADED = true;
+    showLoading(false);
+    if(callback) callback();
+  }).catch(function(err){
+    console.error('Erro ao carregar Supabase:', err);
+    showLoading(false);
+    if(callback) callback();
+  });
+}
+
+function showLoading(show){
+  var el = document.getElementById('sb-loading');
+  if(el) el.style.display = show ? 'flex' : 'none';
+}
+
+// Popular banco com dados padrão quando vazio
+function populateSupabase(callback){
+  var tasks = [];
+
+  CATS.forEach(function(c){
+    tasks.push(sbPost('categorias', {id:c.id, label:c.label, icon:c.icon}));
+  });
+
+  Promise.all(tasks).then(function(){
+    var procTasks = [];
+    PROCS.forEach(function(p){
+      procTasks.push(sbPost('processos', {id:p.id, cat_id:p.cat, icon:p.icon, label:p.label, branches:p.branches}));
+    });
+    return Promise.all(procTasks);
+  }).then(function(){
+    var listTasks = [];
+    LISTS.forEach(function(l){
+      listTasks.push(sbPost('listas', {id:l.id, name:l.name, icon:l.icon, descricao:l.desc||''}));
+    });
+    return Promise.all(listTasks);
+  }).then(function(){
+    var itemTasks = [];
+    LISTS.forEach(function(l){
+      (l.items||[]).forEach(function(i){
+        itemTasks.push(sbPost('lista_itens', {id:i.id, lista_id:l.id, name:i.name, spec:i.spec||'', qty_stock:i.qtyStock||0, qty:i.qty||0, unit:i.unit||'un', link:i.link||'', status:i.status||'falta', obs:i.obs||''}));
+      });
+    });
+    return Promise.all(itemTasks);
+  }).then(function(){
+    var stTasks = [];
+    STOCK.forEach(function(g){
+      stTasks.push(sbPost('estoque_grupos', {id:g.id, name:g.name, icon:g.icon}));
+    });
+    return Promise.all(stTasks);
+  }).then(function(){
+    var siTasks = [];
+    STOCK.forEach(function(g){
+      (g.items||[]).forEach(function(i){
+        siTasks.push(sbPost('estoque_itens', {id:i.id, grupo_id:g.id, name:i.name, spec:i.spec||'', qty:i.qty||0, unit:i.unit||'un', condition:i.condition||'novo', in_box:!!i.inBox, battery_replaced:!!i.batteryReplaced, obs:i.obs||''}));
+      });
+    });
+    return Promise.all(siTasks);
+  }).then(function(){
+    SB_LOADED = true;
+    showLoading(false);
+    if(callback) callback();
+  }).catch(function(err){
+    console.error('Erro ao popular Supabase:', err);
+    showLoading(false);
+    if(callback) callback();
+  });
+}
+
+// ── SYNC FUNCTIONS ─────────────────────────────────────
+function syncCat(cat, isNew){
+  var data = {id:cat.id, label:cat.label, icon:cat.icon};
+  if(isNew) sbPost('categorias', data);
+  else sbPatch('categorias', cat.id, data);
+}
+function syncProc(proc, isNew){
+  var data = {id:proc.id, cat_id:proc.cat, icon:proc.icon, label:proc.label, branches:proc.branches};
+  if(isNew) sbPost('processos', data);
+  else sbPatch('processos', proc.id, data);
+}
+function syncList(list, isNew){
+  var data = {id:list.id, name:list.name, icon:list.icon, descricao:list.desc||''};
+  if(isNew) sbPost('listas', data);
+  else sbPatch('listas', list.id, data);
+}
+function syncListItem(item, listId, isNew){
+  var data = {id:item.id, lista_id:listId, name:item.name, spec:item.spec||'', qty_stock:item.qtyStock||0, qty:item.qty||0, unit:item.unit||'un', link:item.link||'', status:item.status||'falta', obs:item.obs||''};
+  if(isNew) sbPost('lista_itens', data);
+  else sbPatch('lista_itens', item.id, data);
+}
+function syncStockGroup(grp, isNew){
+  var data = {id:grp.id, name:grp.name, icon:grp.icon};
+  if(isNew) sbPost('estoque_grupos', data);
+  else sbPatch('estoque_grupos', grp.id, data);
+}
+function syncStockItem(item, groupId, isNew){
+  var data = {id:item.id, grupo_id:groupId, name:item.name, spec:item.spec||'', qty:item.qty||0, unit:item.unit||'un', condition:item.condition||'novo', in_box:!!item.inBox, battery_replaced:!!item.batteryReplaced, obs:item.obs||''};
+  if(isNew) sbPost('estoque_itens', data);
+  else sbPatch('estoque_itens', item.id, data);
+}
+
+
+
+var USERS=[
+  {id:'u1',name:'Administrador',login:'admin',pass:'tic2024',role:'admin',active:true,last:'agora'},
+  {id:'u2',name:'Joao Silva',login:'joao',pass:'joao123',role:'tech',active:true,last:'hoje 09:14'},
+  {id:'u3',name:'Maria Costa',login:'maria',pass:'maria123',role:'tech',active:true,last:'ontem 16:32'},
+  {id:'u4',name:'Carlos Lima',login:'carlos',pass:'carlos123',role:'tech',active:false,last:'15/05/2026'}
+];
+var CATS=[
+  {id:'criacao-usuario',label:'Criacao de Usuario',icon:'ti-user-plus'},
+  {id:'baixa-usuario',label:'Baixa de Usuario',icon:'ti-user-minus'},
+  {id:'formatacao',label:'Formatacao de Computador',icon:'ti-device-laptop'},
+  {id:'mfa',label:'Resetar MFA',icon:'ti-lock'},
+  {id:'gpo',label:'GPO e Politicas AD',icon:'ti-brand-windows'},
+  {id:'rede',label:'Rede e Infraestrutura',icon:'ti-network'},
+  {id:'seguranca',label:'Seguranca',icon:'ti-shield'},
+  {id:'processos',label:'Processos Gerais',icon:'ti-settings'}
+];
+var PROCS=[
+  {id:'criar-usuario',cat:'criacao-usuario',icon:'ti-user-plus',label:'Criar usuario (chamado RH)',branches:[
+    {label:'Colaborador IDSM',steps:[
+      {title:'Receber chamado do RH',desc:'Verificar: nome, departamento, cargo, data de inicio.',info:'Somente iniciar apos confirmacao formal do RH.'},
+      {title:'Criar conta no Active Directory',desc:'Ferramentas Administrativas > Usuarios e Computadores do AD.',code:'OU: IDSM/Usuarios/[Departamento]\nLogon: nome.sobrenome@idsm.org.br\nSenha padrao: Idsm@2024'},
+      {title:'Configurar grupos e permissoes',checks:['Adicionar ao grupo Usuarios_IDSM','Adicionar a pasta do departamento','Verificar grupos especificos do setor']},
+      {title:'Criar conta no Office 365',code:'https://admin.microsoft.com\nUsuarios > Adicionar usuario\nEmail: nome.sobrenome@idsm.org.br',warn:'Verificar licencas disponiveis antes de criar.'},
+      {title:'Ativar MFA na conta O365',info:'Recomendado: Microsoft Authenticator'},
+      {title:'Preparar equipamento',checks:['Equipamento testado','S.O. atualizado','Programas instalados','Impressora configurada','Rede testada','Ingressou no dominio']},
+      {title:'Registrar na catalogacao',desc:'Nome PC, patrimonio, usuario, departamento, localizacao.'},
+      {title:'Entrega e orientacao ao usuario',desc:'Explicar: senha, MFA, acesso a rede, impressora.',info:'Registrar entrega com assinatura se necessario.'},
+      {title:'Fechar o chamado',desc:'Registrar: conta AD, O365, MFA, equipamento entregue.'}
+    ]},
+    {label:'Projeto / CPF',steps:[
+      {title:'Verificar tipo de contrato',warn:'Verificar se entrara no dominio IDSM ou nao.'},
+      {title:'Se entrar no dominio: criar conta limitada',desc:'OU: IDSM/Usuarios/Projetos. Definir data de expiracao.'},
+      {title:'Se nao entrar: orientar usuario',info:'Sophos e Office por conta propria. Sem suporte TIC apos entrega.'},
+      {title:'Registrar no chamado',desc:'Documentar decisao e o que foi configurado.'}
+    ]}
+  ]},
+  {id:'baixa-usuario',cat:'baixa-usuario',icon:'ti-user-minus',label:'Baixa total de usuario (desligamento)',branches:[
+    {label:'Fluxo completo',steps:[
+      {title:'Receber chamado do RH com data de desligamento',desc:'Confirmar: nome, ultimo dia, necessidade de backup.',warn:'Nao executar antes da data oficial sem autorizacao do RH.'},
+      {title:'Fazer backup dos dados',checks:['Pasta pessoal (Meus Documentos)','Desktop','Downloads relevantes','Pasta no servidor do departamento']},
+      {title:'Desativar conta no Active Directory',desc:'AD > localizar usuario > clique direito > Desabilitar conta.',code:'Nao excluir imediatamente!\nMover para OU: IDSM/Usuarios/Desativados'},
+      {title:'Remover dos grupos no AD',desc:'Propriedades do usuario > Membro de > remover todos os grupos exceto Domain Users.',checks:['Removido de grupos de departamento','Removido de grupos de impressao','Removido de grupos especificos']},
+      {title:'Revogar acesso no Office 365',code:'admin.microsoft.com > Usuarios ativos\nSelecionar usuario > Bloquear entrada\nRevogar sessoes ativas'},
+      {title:'Transferir caixa de email se necessario',info:'Guardar acesso a caixa por no minimo 30 dias apos desligamento.'},
+      {title:'Recolher equipamento',checks:['Notebook ou Computador','Carregador','Mouse e teclado','Headset','Patrimonio conferido','Equipamento testado']},
+      {title:'Agendar formatacao do equipamento'},
+      {title:'Atualizar catalogacao',desc:'Registrar: equipamento devolvido, usuario desligado, data da baixa.'},
+      {title:'Fechar o chamado',desc:'Documentar: contas desativadas, dados salvos, equipamento recolhido.'}
+    ]}
+  ]},
+  {id:'formatacao-pc',cat:'formatacao',icon:'ti-device-laptop',label:'Formatacao de computador',branches:[
+    {label:'Se o computador liga',steps:[
+      {title:'Levantar dados do equipamento',checks:['ServiceTag','Patrimonio','Fabricante e modelo','Configuracao atual (RAM, HD, CPU)']},
+      {title:'Registrar programas instalados',checks:['Print dos programas (Painel de Controle)','Print das impressoras','Print dos certificados','Programas especificos do setor','Programas licenciados']},
+      {title:'Fazer backup dos dados',warn:'TIC nao se responsabiliza por dados nao copiados.',checks:['Documentos pessoais','Desktop','Downloads importantes','Confirmar backup com usuario por escrito']},
+      {title:'Verificar configuracoes do setup (BIOS)',desc:'Reiniciar > F2 ou Del > verificar ordem de boot.',code:'Boot order: Network (PXE) > SSD/HD\nSecure Boot: verificar compatibilidade WDS'},
+      {title:'Formatar via WDS',code:'F12 > Boot from Network\nSelecionar: Windows 11 PRO IDSM\nAguardar instalacao automatica'},
+      {title:'Ativar Windows e Office',code:'slmgr /xpr - verificar ativacao\nslmgr /ato - forcar se necessario\nOffice 2019 ativa automatico via KMS',warn:'Se Office nao ativar: verificar conectividade com servidor KMS.'},
+      {title:'Windows Update e Drivers',desc:'Update completo + drivers no site do fabricante (Dell Support Assist).'},
+      {title:'Atualizar programas',code:'winget upgrade --all'},
+      {title:'Reinstalar programas do usuario',checks:['Programas padrao IDSM','Programas especificos do setor','Certificados reinstalados','Impressoras configuradas']},
+      {title:'Ingressar no dominio',code:'Dominio: idsm.org.br\nNome PC: [SIGLA-DEPT]-[NUM]\nReiniciar apos ingressar'},
+      {title:'Catalogar o equipamento',checks:['Predio/Departamento','Nome do computador','ServiceTag/Patrimonio','Memoria/CPU/HD','Usuario responsavel']},
+      {title:'Testes finais',checks:['Teams funcionando','Email funcionando','Impressora funcionando','Internet funcionando','Acesso a rede/servidor','Certificados validos']}
+    ]},
+    {label:'Se o computador nao liga',steps:[
+      {title:'Diagnostico inicial',checks:['Cabo de energia conectado','Fonte ligada','Botao power respondendo','LED de energia acende','Ventoinhas giram']},
+      {title:'Verificar fonte de energia',desc:'Testar com outra fonte ou multimetro.',warn:'Se nao tiver equipamento, encaminhar para manutencao externa.'},
+      {title:'Verificar memoria RAM',desc:'Retirar e recolocar pentes. Testar com um pente por vez.'},
+      {title:'Verificar HD ou SSD',desc:'Conectar em outro computador via adaptador USB.'},
+      {title:'Solicitar lista de programas e certificados',info:'Dependendo do problema pode haver perda de dados. Avisar o usuario.'},
+      {title:'Resolver problema ou encaminhar manutencao'},
+      {title:'Apos resolver: seguir fluxo Se o computador liga',desc:'Voltar ao fluxo principal a partir do passo Formatar via WDS.'}
+    ]}
+  ]},
+  {id:'resetar-mfa',cat:'mfa',icon:'ti-lock-open',label:'Resetar MFA de usuario',branches:[
+    {label:'Via Portal Admin',steps:[
+      {title:'Acessar portal Microsoft Entra e resetar MFA',desc:'https://entra.microsoft.com\nPagina inicial > Usuarios > Microsoft Entra > INSTITUTO DE DESENVOLVIMENTO SUSTENTAVEL MAMIRAUA > Usuarios\nBuscar usuario > Selecionar usuario > Clicar Configuracoes da MFA do usuario > Marcar todas as caixas\n[x] Requisitar que usuarios selecionados fornecam novamente os metodos de contato\n[x] Excluir todas as senhas de aplicativo existentes geradas pelos usuarios selecionados\n[x] Restaurar a autenticacao multifator em todos os dispositivos lembrados\n> Salvar',info:'Marcar para resetar o MFA do e-mail do usuario caso perca de celular, roubo ou troca de aparelho.'},
+      {title:'Acessar autenticacao multifator',desc:'Clicar no nome > Gerenciar autenticacao multifator.'},
+      {title:'Resetar o MFA',desc:'Selecionar usuario > Redefinir ou Gerenciar configuracoes.',code:'Marcar: Exigir que usuario forneca metodos de contato novamente\nSalvar'},
+      {title:'Orientar o usuario',desc:'No proximo login sera solicitado configurar MFA novamente.',info:'Recomendado: Microsoft Authenticator. Disponibilizar o app antes do acesso.'},
+      {title:'Acompanhar primeiro acesso pos reset'},
+      {title:'Registrar no chamado',desc:'Documentar: usuario, motivo, data, quem autorizou.'}
+    ]}
+  ]},
+  {id:'gpo-logon',cat:'gpo',icon:'ti-brand-windows',label:'Imagem de aviso na tela de logon (GPO)',branches:[
+    {label:'Via Group Policy',steps:[
+      {title:'Preparar a imagem de aviso',checks:['Imagem com resolucao adequada (1920x1080)','Texto legivel e objetivo','Aprovada pelo gestor']},
+      {title:'Salvar imagem no servidor',code:'Copiar imagem para pasta compartilhada acessivel por todos os PCs do dominio.'},
+      {title:'Abrir Gerenciamento de Politica de Grupo',code:'Ferramentas Administrativas > GPMC\nAtalho: gpmc.msc'},
+      {title:'Criar ou editar GPO',desc:'Clique direito no dominio > Criar GPO > nomear (ex: TIC-Logon-Aviso).'},
+      {title:'Configurar mensagem de aviso (texto)',desc:'GPO > Config do Computador > Config do Windows > Config de Seguranca > Politicas Locais > Opcoes de Seguranca.',code:'Logon interativo: titulo da mensagem\nLogon interativo: mensagem para usuarios'},
+      {title:'Configurar imagem de plano de fundo',desc:'GPO > Config do Computador > Modelos Administrativos > Sistema > Logon.',code:'Politica: Sempre usar plano de fundo personalizado da tela de logon\nCaminho: \\servidor\\NETLOGON\\logon-aviso.jpg'},
+      {title:'Vincular GPO ao dominio ou OU',desc:'Arrastar GPO para dominio/OU ou clique direito > Vincular GPO existente.'},
+      {title:'Forcar atualizacao da politica',code:'gpupdate /force\nReiniciar o computador para ver efeito'},
+      {title:'Testar em um computador',warn:'Se nao aparecer: verificar vinculacao da GPO, permissoes da pasta e caminho da imagem.'},
+      {title:'Registrar no chamado',desc:'Documentar: GPO criada, OU vinculada, imagem utilizada, data.'}
+    ]}
+  ]},
+  {id:'reset-senha',cat:'processos',icon:'ti-key',label:'Reset de senha de usuario',branches:[
+    {label:'Active Directory',steps:[
+      {title:'Verificar identidade',warn:'Nunca resetar sem confirmar a identidade do usuario.'},
+      {title:'Localizar usuario no AD'},
+      {title:'Resetar senha',code:'Senha padrao: Idsm@2024\nMarcar: exigir troca no proximo login'},
+      {title:'Informar ao usuario'},
+      {title:'Registrar no chamado'}
+    ]},
+    {label:'Office 365',steps:[
+      {title:'Acessar admin.microsoft.com',desc:'Usuarios > Usuarios ativos > selecionar usuario.'},
+      {title:'Redefinir senha',code:'Marcar: exigir troca no primeiro login'},
+      {title:'Enviar senha pelo chamado'}
+    ]}
+  ]}
+];
+var LISTS=[
+  {id:'l1',name:'Compras - Perifericos',icon:'ti-keyboard',desc:'Memorias, SSDs, cabos, mouses e acessorios',items:[
+    {id:'i1',name:'Memorias RAM — DDR4',spec:'DDR4 3200MHz 8GB — Kingston KVR32N22S8/8',qtyStock:0,qty:5,unit:'un',link:'',status:'falta',obs:'Estoque zerado. Computadores: Dell Optiplex 7080, Latitude 5420.'},
+    {id:'i2',name:'Memorias RAM — DDR4',spec:'DDR4 3200MHz 16GB — Kingston KVR32N22D8/16',qtyStock:1,qty:3,unit:'un',link:'',status:'pouco',obs:'Restam 1 unidade no estoque.'},
+    {id:'i3',name:'Memorias RAM — DDR3',spec:'DDR3 1333MHz 4GB — Kingston KVR13N9S8/4',qtyStock:2,qty:4,unit:'un',link:'',status:'pouco',obs:'Para computadores mais antigos.'},
+    {id:'i4',name:'SSD SATA 2.5"',spec:'480GB — Kingston A400 SA400S37/480G',qtyStock:2,qty:10,unit:'un',link:'',status:'pouco',obs:'Restam 2 unidades. Usar em upgrades e formatacoes.'},
+    {id:'i5',name:'Cabo de rede Cat6',spec:'Rolo 305m — Furukawa Cat6 UTP',qtyStock:1,qty:1,unit:'rolo',link:'',status:'ok',obs:'Aprox. 180m restantes no rolo atual.'},
+    {id:'i6',name:'Conector RJ45 Cat6',spec:'Caixa 100un — AMP ou Panduit Cat6',qtyStock:0,qty:2,unit:'cx',link:'',status:'falta',obs:'Estoque zerado.'},
+    {id:'i7',name:'Mouse USB otico',spec:'Qualquer marca padrao ABNT2',qtyStock:0,qty:5,unit:'un',link:'',status:'falta',obs:''},
+    {id:'i8',name:'Teclado USB ABNT2',spec:'Qualquer marca padrao',qtyStock:3,qty:3,unit:'un',link:'',status:'ok',obs:''}
+  ]},
+  {id:'l2',name:'Compras - Manutencao de Rede',icon:'ti-network',desc:'Equipamentos e materiais de infraestrutura de rede',items:[
+    {id:'i9',name:'Velcro dupla face para cabos',spec:'Tiras 30cm ou rolo 5m',qtyStock:0,qty:30,unit:'tiras',link:'',status:'falta',obs:'Urgente para organizacao do rack.'},
+    {id:'i10',name:'Patch panel Cat6 24 portas',spec:'AMP ou Furukawa',qtyStock:0,qty:1,unit:'un',link:'',status:'falta',obs:''},
+    {id:'i11',name:'Adaptador RJ45 femea-femea Cat6',spec:'Keystone ou inline',qtyStock:5,qty:20,unit:'un',link:'',status:'pouco',obs:'Restam 5 unidades.'},
+    {id:'i12',name:'Etiquetadora + fitas',spec:'Brother PT-D210 ou similar',qtyStock:1,qty:0,unit:'kit',link:'',status:'ok',obs:'Kit completo disponivel.'}
+  ]},
+  {id:'l3',name:'Compras - Backbone IDSM',icon:'ti-server',desc:'Equipamentos de backbone e infraestrutura principal',items:[
+    {id:'i13',name:'Switch gerenciavel Gigabit',spec:'24 portas — Cisco SG350-28 ou similar',qtyStock:0,qty:1,unit:'un',link:'',status:'falta',obs:'Para substituicao do switch do predio principal.'},
+    {id:'i14',name:'Nobreak UPS 1500VA',spec:'APC BE1500G2-BR',qtyStock:0,qty:2,unit:'un',link:'',status:'falta',obs:''},
+    {id:'i15',name:'Bateria para Nobreak APC 1500VA',spec:'APC RBC7',qtyStock:2,qty:4,unit:'un',link:'',status:'pouco',obs:'Restam 2. Trocar em jun/2026.'}
+  ]}
+];
+
+var STOCK=[
+  {id:'s1',name:'Memorias RAM',icon:'ti-cpu',items:[
+    {id:'si1',name:'DDR4 8GB 3200MHz',spec:'Kingston KVR32N22S8/8',qty:3,unit:'un',condition:'novo',inBox:true,batteryReplaced:false,obs:'Estoque para upgrades'},
+    {id:'si2',name:'DDR4 16GB 3200MHz',spec:'Kingston KVR32N22D8/16',qty:1,unit:'un',condition:'usado',inBox:false,batteryReplaced:false,obs:'Retirado de maquina reformada'},
+    {id:'si3',name:'DDR3 4GB 1333MHz',spec:'Kingston KVR13N9S8/4',qty:4,unit:'un',condition:'usado',inBox:false,batteryReplaced:false,obs:'Para computadores antigos'}
+  ]},
+  {id:'s2',name:'SSDs e HDs',icon:'ti-device-sd-card',items:[
+    {id:'si4',name:'SSD SATA 2.5 480GB',spec:'Kingston A400 SA400S37/480G',qty:2,unit:'un',condition:'novo',inBox:true,batteryReplaced:false,obs:'Estoque para formatacoes'},
+    {id:'si5',name:'SSD NVMe M.2 256GB',spec:'Kingston NV2 SNV2S/256G',qty:1,unit:'un',condition:'novo',inBox:true,batteryReplaced:false,obs:''},
+    {id:'si6',name:'HD SATA 1TB',spec:'Seagate Barracuda ST1000DM010',qty:2,unit:'un',condition:'usado',inBox:false,batteryReplaced:false,obs:'Retirados de desktops antigos'}
+  ]},
+  {id:'s3',name:'Nobreaks (UPS)',icon:'ti-plug',items:[
+    {id:'si7',name:'Nobreak APC 1500VA',spec:'APC BE1500G2-BR 865W',qty:2,unit:'un',condition:'novo',inBox:true,batteryReplaced:false,obs:'Na caixa lacrada'},
+    {id:'si8',name:'Nobreak APC 1500VA',spec:'APC BE1500G2-BR 865W',qty:1,unit:'un',condition:'usado',inBox:false,batteryReplaced:true,obs:'Bateria trocada em jun/2024'},
+    {id:'si9',name:'Nobreak SMS 1200VA',spec:'SMS Manager III 720W',qty:1,unit:'un',condition:'defeito',inBox:false,batteryReplaced:false,obs:'Com defeito. Aguardando descarte.'}
+  ]},
+  {id:'s4',name:'Filtros de Linha',icon:'ti-plug-connected',items:[
+    {id:'si10',name:'Filtro de linha 6 tomadas',spec:'Intelbras EPE 1006',qty:4,unit:'un',condition:'novo',inBox:false,batteryReplaced:false,obs:''},
+    {id:'si11',name:'Filtro de linha 10 tomadas',spec:'Multilaser WI360',qty:2,unit:'un',condition:'usado',inBox:false,batteryReplaced:false,obs:'Em uso reserva'}
+  ]},
+  {id:'s5',name:'Cabos e Adaptadores',icon:'ti-cable',items:[
+    {id:'si12',name:'Cabo HDMI 1.8m',spec:'HDMI 2.0 padrao',qty:5,unit:'un',condition:'novo',inBox:false,batteryReplaced:false,obs:''},
+    {id:'si13',name:'Adaptador USB-C para HDMI',spec:'Multilaser ou similar',qty:2,unit:'un',condition:'novo',inBox:true,batteryReplaced:false,obs:''}
+  ]},
+  {id:'s6',name:'Perifericos em Estoque',icon:'ti-keyboard',items:[
+    {id:'si15',name:'Teclado USB ABNT2',spec:'Padrao',qty:3,unit:'un',condition:'novo',inBox:false,batteryReplaced:false,obs:''},
+    {id:'si16',name:'Mouse USB otico',spec:'Padrao',qty:4,unit:'un',condition:'novo',inBox:false,batteryReplaced:false,obs:''}
+  ]}
+];
+var activeStock=null,editStockId=null,editStockItemId=null;
+var currentUser=null,activeCat='todos',openCats={},openProcs={},activeBranch={};
+var filterQ='',activeCatList=null;
+var editProcId=null,editCatId=null,editStepCtx=null,editUserId=null,passUserId=null;
+var editListId=null,editListItemId=null,chkItems=[];
+
+function doLogin(){
+  var u=document.getElementById('lu').value.trim().toLowerCase();
+  var p=document.getElementById('lp').value;
+  var user=null;
+  for(var i=0;i<USERS.length;i++){if(USERS[i].login===u&&USERS[i].pass===p&&USERS[i].active!==false){user=USERS[i];break;}}
+  var err=document.getElementById('lerr');
+  if(user){
+    currentUser=user;
+    err.classList.remove('show');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('t-name').textContent=user.name;
+    document.getElementById('t-av').textContent=user.name[0];
+    if(user.role==='admin')document.getElementById('cfg-btn').style.display='flex';
+    for(var i=0;i<CATS.length;i++)openCats[CATS[i].id]=true;
+    user.last='agora';
+    loadFromSupabase(function(){
+      CATS.forEach(function(c){openCats[c.id]=true;});
+      renderSidebar();render();
+    });
+  }else{
+    err.classList.add('show');
+    document.getElementById('lp').value='';
+  }
+}
+document.addEventListener('keydown',function(e){
+  var ls=document.getElementById('login-screen');
+  if(e.key==='Enter'&&ls.style.display!=='none')doLogin();
+});
+function doLogout(){
+  currentUser=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('lu').value='';
+  document.getElementById('lp').value='';
+  document.getElementById('cfg-btn').style.display='none';
+  document.getElementById('lerr').classList.remove('show');
+  closeCfg();
+}
+
+function renderSidebar(){
+  var sb=document.getElementById('sidebar');
+  var h='<div class="sb-section"><div class="sb-label">Principal</div>';
+  h+=sbBtn('todos','ti-layout-grid','Todos os processos',PROCS.length);
+  h+='</div><hr class="sb-divider"><div class="sb-section"><div class="sb-label">Categorias</div>';
+  for(var i=0;i<CATS.length;i++){
+    var cnt=0;for(var j=0;j<PROCS.length;j++)if(PROCS[j].cat===CATS[i].id)cnt++;
+    h+=sbBtn(CATS[i].id,CATS[i].icon,CATS[i].label,cnt);
+  }
+  h+='</div><hr class="sb-divider"><div class="sb-section"><div class="sb-label">Listas Gerais</div>';
+  for(var i=0;i<LISTS.length;i++){
+    h+=sbBtn('list-'+LISTS[i].id,LISTS[i].icon,LISTS[i].name,LISTS[i].items.length);
+  }
+  h+='</div><hr class="sb-divider"><div class="sb-section"><div class="sb-label">Estoque</div>';
+  for(var i=0;i<STOCK.length;i++){var st=0;for(var j=0;j<STOCK[i].items.length;j++)st+=STOCK[i].items[j].qty;h+=sbBtn('stock-'+STOCK[i].id,STOCK[i].icon,STOCK[i].name,st+' un');}
+  h+='</div>';
+  sb.innerHTML=h;
+}
+var ICON_MAP={
+  'ti-layout-grid':'&#9783;','ti-users':'&#128101;','ti-user-plus':'&#128100;',
+  'ti-user-minus':'&#128100;','ti-device-laptop':'&#128187;','ti-lock':'&#128274;',
+  'ti-lock-open':'&#128275;','ti-brand-windows':'&#9881;','ti-network':'&#128246;',
+  'ti-shield':'&#128737;','ti-shield-check':'&#128737;','ti-settings':'&#9881;',
+  'ti-keyboard':'&#9000;','ti-network':'&#128246;','ti-server':'&#128657;',
+  'ti-cpu':'&#9096;','ti-device-sd-card':'&#128190;','ti-plug':'&#128268;',
+  'ti-plug-connected':'&#128268;','ti-cable':'&#128268;','ti-package':'&#128230;',
+  'ti-tools':'&#128295;','ti-folder':'&#128193;'
+};
+function sbBtn(id,icon,label,cnt){
+  var ico='';
+  if(icon){
+    if(ICON_MAP[icon]){
+      ico='<span style="font-size:14px;flex-shrink:0;width:18px;text-align:center">'+ICON_MAP[icon]+'</span>';
+    } else {
+      ico='<i class="ti '+icon+'" style="font-size:15px;flex-shrink:0"></i>';
+    }
+  }
+  return '<button class="sb-btn '+(activeCat===id?'active':'')+'" onclick="setCat(\''+id+'\',this)">'+ico+label+'<span class="sb-cnt">'+cnt+'</span></button>';
+}
+
+function setCat(id,btn){
+  activeCat=id;
+  var btns=document.querySelectorAll('.sb-btn');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  btn.classList.add('active');
+  if(id.indexOf('list-')===0){activeCatList=id.replace('list-','');renderList(activeCatList);}
+  else render();
+}
+
+function doSearch(){filterQ=document.getElementById('search-input').value.toLowerCase();render();}
+
+function render(){
+  if(activeCat&&activeCat.indexOf('list-')===0){renderList(activeCatList);return;}
+  if(activeCat&&activeCat.indexOf('stock-')===0){renderStock(activeStock);return;}
+  var el=document.getElementById('content');
+  var procs=[];
+  for(var i=0;i<PROCS.length;i++){
+    if(activeCat==='todos'||PROCS[i].cat===activeCat)procs.push(PROCS[i]);
+  }
+  if(filterQ){
+    var fp=[];
+    for(var i=0;i<procs.length;i++){
+      var p=procs[i];
+      if(p.label.toLowerCase().indexOf(filterQ)>=0){fp.push(p);continue;}
+      for(var b=0;b<p.branches.length;b++)for(var s=0;s<p.branches[b].steps.length;s++)if(p.branches[b].steps[s].title.toLowerCase().indexOf(filterQ)>=0){fp.push(p);break;}
+    }
+    procs=fp;
+  }
+  var catsToShow=[];
+  for(var i=0;i<CATS.length;i++){
+    if(activeCat==='todos'||activeCat===CATS[i].id){
+      var hasproc=false;for(var j=0;j<procs.length;j++)if(procs[j].cat===CATS[i].id){hasproc=true;break;}
+      if(hasproc)catsToShow.push(CATS[i]);
+    }
+  }
+  if(!procs.length){el.innerHTML='<div class="empty"><p style="font-size:13px;color:var(--text2)">Nenhum processo encontrado.</p></div>';return;}
+  var h='';
+  for(var ci=0;ci<catsToShow.length;ci++){
+    var cat=catsToShow[ci];
+    var cp=[];for(var i=0;i<procs.length;i++)if(procs[i].cat===cat.id)cp.push(procs[i]);
+    if(!cp.length)continue;
+    var isOpen=openCats[cat.id]!==false;
+    h+='<div class="cat-block"><div class="cat-header '+(isOpen?'open':'')+'" onclick="toggleCat(\''+cat.id+'\')">';
+    h+='<div class="cat-icon"><i class="ti '+cat.icon+'"></i></div>';
+    h+='<div class="cat-name">'+cat.label+'</div>';
+    h+='<span class="cat-badge">'+cp.length+' processo'+(cp.length!==1?'s':'')+'</span>';
+    if(currentUser&&currentUser.role==='admin'){
+      h+='<div class="cat-actions" onclick="event.stopPropagation()">';
+      h+='<button class="cat-act" onclick="openCatM(\''+cat.id+'\')">editar</button>';
+      h+='<button class="cat-act" onclick="confirmDelCat(\''+cat.id+'\')">excluir</button>';
+      h+='</div>';
+    }
+    h+='<i class="ti ti-chevron-down cat-chev"></i></div>';
+    h+='<div class="cat-body '+(isOpen?'open':'')+'">';
+    for(var pi=0;pi<cp.length;pi++){
+      var proc=cp[pi];
+      var bIdx=activeBranch[proc.id]||0;
+      var branch=proc.branches[bIdx]||proc.branches[0];
+      var total=branch.steps.length;
+      var pOpen=openProcs[proc.id];
+      h+='<div><div class="proc-row '+(pOpen?'open':'')+'" onclick="toggleProc(\''+proc.id+'\')">';
+      h+='<i class="ti '+proc.icon+' pr-icon"></i>';
+      h+='<span class="pr-name">'+proc.label+'</span>';
+      h+='<div class="pr-meta" onclick="event.stopPropagation()">';
+      h+='<span class="pr-steps">'+total+' passo'+(total!==1?'s':'')+'</span>';
+      if(currentUser&&currentUser.role==='admin'){
+        h+='<div class="pr-acts">';
+        h+='<button class="pr-act" onclick="openProcM(\''+proc.id+'\')">editar</button>';
+        h+='<button class="pr-act" onclick="dupProc(\''+proc.id+'\')">copiar</button>';
+        h+='<button class="pr-act del" onclick="confirmDelProc(\''+proc.id+'\')">excluir</button>';
+        h+='</div>';
+      }
+      h+='</div><i class="ti ti-chevron-down pr-chev"></i></div>';
+      h+='<div class="steps-panel '+(pOpen?'open':'')+'" id="sp-'+proc.id+'">'+renderSteps(proc)+'</div></div>';
+    }
+    h+='</div></div>';
+  }
+  el.innerHTML=h;
+}
+
+function renderSteps(proc){
+  var bIdx=activeBranch[proc.id]||0;
+  var branch=proc.branches[bIdx]||proc.branches[0];
+  var total=branch.steps.length;
+  var h='<div class="steps-inner">';
+  if(proc.branches.length>1){
+    h+='<div class="btabs">';
+    for(var i=0;i<proc.branches.length;i++)h+='<button class="btab '+(i===bIdx?'on':'')+'" onclick="event.stopPropagation();swBranch(\''+proc.id+'\','+i+')">'+proc.branches[i].label+'</button>';
+    if(currentUser&&currentUser.role==='admin')h+='<button class="btab dash" onclick="event.stopPropagation();addBranch(\''+proc.id+'\')">+ fluxo</button>';
+    h+='</div>';
+  }else if(currentUser&&currentUser.role==='admin'){
+    h+='<div style="margin-bottom:10px"><button class="btab dash" onclick="event.stopPropagation();addBranch(\''+proc.id+'\')">+ fluxo alternativo</button></div>';
+  }
+  h+='<div class="prog-row"><div class="prog-track"><div class="prog-fill" id="pf-'+proc.id+'" style="width:0%"></div></div><span class="prog-lbl" id="pl-'+proc.id+'">0/'+total+'</span></div>';
+  h+='<div class="step-list">';
+  for(var i=0;i<branch.steps.length;i++){
+    var s=branch.steps[i];
+    h+='<div class="step-item"><div class="step-num" id="sn-'+proc.id+'-'+i+'" data-n="'+(i+1)+'" onclick="event.stopPropagation();markStep(\''+proc.id+'\','+i+','+total+')">'+(i+1)+'</div>';
+    h+='<div class="step-body"><div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1">';
+    h+='<div class="step-title">'+esc(s.title)+'</div>';
+    if(s.desc)h+='<div class="step-desc">'+renderDesc(s.desc)+'</div>';
+    if(s.code)h+='<div class="step-code">'+esc(s.code)+'</div>';
+    if(s.warn)h+='<div class="step-warn">&#9888; '+esc(s.warn)+'</div>';
+    if(s.info)h+='<div class="step-info">&#8505; '+esc(s.info)+'</div>';
+    if(s.checks&&s.checks.length){
+      h+='<div class="chklist">';
+      for(var c=0;c<s.checks.length;c++)h+='<div class="chk" onclick="event.stopPropagation();this.classList.toggle(\'done\')"><div class="chkbox">&#10003;</div><span class="cl">'+esc(s.checks[c])+'</span></div>';
+      h+='</div>';
+    }
+    h+='</div>';
+    if(currentUser&&currentUser.role==='admin'){
+      h+='<div class="step-act-row"><button class="s-act" onclick="event.stopPropagation();openStepM(\''+proc.id+'\','+bIdx+','+i+')">editar</button>';
+      h+='<button class="s-act" onclick="event.stopPropagation();mvStep(\''+proc.id+'\','+bIdx+','+i+',-1)">&#8593;</button>';
+      h+='<button class="s-act" onclick="event.stopPropagation();mvStep(\''+proc.id+'\','+bIdx+','+i+',1)">&#8595;</button>';
+      h+='<button class="s-act del" onclick="event.stopPropagation();delStep(\''+proc.id+'\','+bIdx+','+i+')">excluir</button></div>';
+    }
+    h+='</div></div></div>';
+  }
+  h+='</div>';
+  if(currentUser&&currentUser.role==='admin'){
+    h+='<div class="add-step-row"><input class="asi" id="asi-'+proc.id+'" placeholder="Titulo do novo passo..." onclick="event.stopPropagation()" onkeydown="if(event.key===\'Enter\')quickStep(\''+proc.id+'\','+bIdx+')">';
+    h+='<button class="as-btn" onclick="event.stopPropagation();quickStep(\''+proc.id+'\','+bIdx+')">+ Passo</button>';
+    h+='<button class="as-btn sec" onclick="event.stopPropagation();openStepM(\''+proc.id+'\','+bIdx+',null)">+ Detalhado</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function toggleCat(id){openCats[id]=!openCats[id];render();}
+function toggleProc(id){openProcs[id]=!openProcs[id];render();}
+function swBranch(pid,idx){activeBranch[pid]=idx;render();}
+function markStep(pid,idx,total){
+  var el=document.getElementById('sn-'+pid+'-'+idx);if(!el)return;
+  el.classList.toggle('done');
+  el.textContent=el.classList.contains('done')?'\u2713':el.dataset.n;
+  var sp=document.getElementById('sp-'+pid);
+  var done=sp?sp.querySelectorAll('.step-num.done').length:0;
+  var pct=total?Math.round(done/total*100):0;
+  var pf=document.getElementById('pf-'+pid);var pl=document.getElementById('pl-'+pid);
+  if(pf)pf.style.width=pct+'%';if(pl)pl.textContent=done+'/'+total;
+}
+
+function openProcM(id){
+  editProcId=id||null;
+  var p=id?findById(PROCS,id):null;
+  document.getElementById('mh-proc-t').textContent=p?'Editar processo':'Novo processo';
+  var sel=document.getElementById('mp-cat');
+  var opts='';for(var i=0;i<CATS.length;i++)opts+='<option value="'+CATS[i].id+'"'+(p&&p.cat===CATS[i].id?' selected':'')+'>'+CATS[i].label+'</option>';
+  sel.innerHTML=opts;
+  document.getElementById('mp-name').value=p?p.label:'';
+  document.getElementById('mp-icon').value=p?p.icon:'ti-file';
+  document.getElementById('mp-steps').value=p?(p.branches[0]?p.branches[0].steps.map(function(s,i){return (i+1)+'. '+s.title;}).join('\n'):''):'';
+  updIcon();showM('m-proc');
+}
+function saveProc(){
+  var name=document.getElementById('mp-name').value.trim();if(!name)return;
+  var cat=document.getElementById('mp-cat').value;
+  var icon=document.getElementById('mp-icon').value.trim()||'ti-file';
+  var raw=document.getElementById('mp-steps').value.trim();
+  var steps=raw?raw.split('\n').filter(function(l){return l.trim();}).map(function(l){return {title:l.replace(/^\d+[.)]\s*/,'').trim()};}):[{title:'Passo 1'}];
+  if(editProcId){
+    var p=findById(PROCS,editProcId);
+    if(p){p.label=name;p.cat=cat;p.icon=icon;p.branches[0].steps=steps;syncProc(p,false);}
+  } else {
+    var np={id:'p'+Date.now(),cat:cat,icon:icon,label:name,branches:[{label:'Padrao',steps:steps}]};
+    PROCS.push(np);openCats[cat]=true;syncProc(np,true);
+  }
+  closeM('m-proc');renderSidebar();render();
+}
+function dupProc(id){
+  var p=findById(PROCS,id);if(!p)return;
+  var c=JSON.parse(JSON.stringify(p));c.id='p'+Date.now();c.label+=' (copia)';
+  PROCS.push(c);renderSidebar();render();
+}
+function confirmDelProc(id){
+  var p=findById(PROCS,id);if(!p)return;
+  document.getElementById('m-confirm-msg').textContent='Excluir o processo "'+p.label+'"?';
+  document.getElementById('m-confirm-ok').onclick=function(){PROCS=PROCS.filter(function(x){return x.id!==id;});sbDelete('processos',id);closeM('m-confirm');renderSidebar();render();};
+  showM('m-confirm');
+}
+function openCatM(id){
+  editCatId=id||null;
+  var c=id?findById(CATS,id):null;
+  document.getElementById('mh-cat-t').textContent=c?'Editar categoria':'Nova categoria';
+  document.getElementById('mc-name').value=c?c.label:'';
+  document.getElementById('mc-icon').value=c?c.icon:'ti-folder';
+  updCatIcon();showM('m-cat');
+}
+function saveCat(){
+  var name=document.getElementById('mc-name').value.trim();if(!name)return;
+  var icon=document.getElementById('mc-icon').value.trim()||'ti-folder';
+  if(editCatId){
+    var c=findById(CATS,editCatId);
+    if(c){c.label=name;c.icon=icon;syncCat(c,false);}
+  } else {
+    var nid='c'+Date.now();
+    var newCat={id:nid,label:name,icon:icon};
+    CATS.push(newCat);openCats[nid]=true;
+    syncCat(newCat,true);
+  }
+  closeM('m-cat');renderSidebar();render();renderCatsList();
+}
+function confirmDelCat(id){
+  var cat=findById(CATS,id);if(!cat)return;
+  var cnt=PROCS.filter(function(p){return p.cat===id;}).length;
+  var msg='Excluir a categoria "'+cat.label+'"?';
+  if(cnt)msg+=' Os '+cnt+' processos tambem serao removidos.';
+  document.getElementById('m-confirm-msg').textContent=msg;
+  document.getElementById('m-confirm-ok').onclick=function(){
+    PROCS.filter(function(p){return p.cat===id;}).forEach(function(p){sbDelete('processos',p.id);});
+    CATS=CATS.filter(function(c){return c.id!==id;});
+    PROCS=PROCS.filter(function(p){return p.cat!==id;});
+    if(activeCat===id)activeCat='todos';
+    sbDelete('categorias',id);
+    closeM('m-confirm');renderSidebar();render();renderCatsList();
+  };
+  showM('m-confirm');
+}
+function openStepM(pid,bIdx,sIdx){
+  editStepCtx={pid:pid,bIdx:bIdx,sIdx:sIdx};chkItems=[];
+  var proc=findById(PROCS,pid);
+  var s=sIdx!==null&&sIdx!==undefined?proc&&proc.branches[bIdx]&&proc.branches[bIdx].steps[sIdx]:null;
+  document.getElementById('mh-step-t').textContent=s?'Editar passo':'Novo passo';
+  document.getElementById('ms-title').value=s?s.title:'';
+  document.getElementById('ms-desc').value=s&&s.desc?s.desc:'';
+  document.getElementById('ms-code').value=s&&s.code?s.code:'';
+  document.getElementById('ms-warn').value=s&&s.warn?s.warn:'';
+  document.getElementById('ms-info').value=s&&s.info?s.info:'';
+  chkItems=s&&s.checks?s.checks.slice():[];
+  renderChkBuild();showM('m-step');
+}
+function saveStep(){
+  var ctx=editStepCtx||{};var proc=findById(PROCS,ctx.pid);if(!proc)return;
+  var title=document.getElementById('ms-title').value.trim();if(!title)return;
+  var step={title:title};
+  var desc=document.getElementById('ms-desc').value.trim();if(desc)step.desc=desc;
+  var code=document.getElementById('ms-code').value.trim();if(code)step.code=code;
+  var warn=document.getElementById('ms-warn').value.trim();if(warn)step.warn=warn;
+  var info=document.getElementById('ms-info').value.trim();if(info)step.info=info;
+  if(chkItems.length)step.checks=chkItems.slice();
+  if(ctx.sIdx!==null&&ctx.sIdx!==undefined)proc.branches[ctx.bIdx].steps[ctx.sIdx]=step;
+  else proc.branches[ctx.bIdx].steps.push(step);
+  closeM('m-step');render();
+}
+function quickStep(pid,bIdx){
+  var inp=document.getElementById('asi-'+pid);if(!inp||!inp.value.trim())return;
+  var proc=findById(PROCS,pid);if(!proc)return;
+  proc.branches[bIdx].steps.push({title:inp.value.trim()});inp.value='';render();
+  setTimeout(function(){var e=document.getElementById('asi-'+pid);if(e)e.focus();},50);
+}
+function delStep(pid,bIdx,sIdx){var p=findById(PROCS,pid);if(p)p.branches[bIdx].steps.splice(sIdx,1);render();}
+function mvStep(pid,bIdx,sIdx,dir){
+  var p=findById(PROCS,pid);if(!p)return;
+  var st=p.branches[bIdx].steps;var ni=sIdx+dir;
+  if(ni<0||ni>=st.length)return;var tmp=st[sIdx];st[sIdx]=st[ni];st[ni]=tmp;render();
+}
+function addBranch(pid){
+  var p=findById(PROCS,pid);if(!p)return;
+  var name=prompt('Nome do novo fluxo:');if(!name)return;
+  p.branches.push({label:name,steps:[{title:'Passo 1'}]});activeBranch[pid]=p.branches.length-1;render();
+}
+function renderChkBuild(){
+  var el=document.getElementById('chk-build');var h='';
+  for(var i=0;i<chkItems.length;i++)h+='<div class="chk-brow"><span>'+esc(chkItems[i])+'</span><button class="chk-del" onclick="chkItems.splice('+i+',1);renderChkBuild()">x</button></div>';
+  el.innerHTML=h;
+}
+function addChkItem(){
+  var inp=document.getElementById('chk-new-inp');if(!inp.value.trim())return;
+  chkItems.push(inp.value.trim());inp.value='';renderChkBuild();
+}
+
+function renderList(listId){
+  var el=document.getElementById('content');
+  var list=findById(LISTS,listId);if(!list){el.innerHTML='';return;}
+  var sm={ok:'background:#e8f5e2;color:#2d6124',pouco:'background:#fff8e1;color:#7a5c00',falta:'background:#fff0f0;color:#8b2020',comprado:'background:#e8f0fb;color:#1a4a7a'};
+  var sl={ok:'Tem em estoque',pouco:'Estoque baixo',falta:'Precisa comprar',comprado:'Pedido realizado'};
+  var counts={ok:0,pouco:0,falta:0,comprado:0};
+  for(var i=0;i<list.items.length;i++){var st=list.items[i].status;if(counts[st]!==undefined)counts[st]++;}
+  var h='<div style="margin-bottom:16px">';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
+  h+='<div style="width:42px;height:42px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;color:var(--green3)"><i class="ti '+list.icon+'" style="font-size:20px"></i></div>';
+  h+='<div style="flex:1"><div style="font-size:16px;font-weight:500">'+esc(list.name)+'</div><div style="font-size:12px;color:var(--text3)">'+esc(list.desc)+'</div></div>';
+  if(currentUser&&currentUser.role==='admin')h+='<button onclick="openListItemM(\''+list.id+'\',null)" style="padding:7px 14px;border-radius:var(--rs);background:var(--green);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer">+ Adicionar item</button>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">';
+  var statKeys=['ok','pouco','falta','comprado'];
+  for(var k=0;k<statKeys.length;k++){var sk=statKeys[k];h+='<div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"><div style="font-size:20px;font-weight:600;font-family:var(--mono);'+sm[sk].replace('background','color').split(';')[1]+'">'+counts[sk]+'</div><div style="font-size:11px;color:var(--text3)">'+sl[sk]+'</div></div>';}
+  h+='</div>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">';
+  h+='<thead><tr style="background:var(--surface2)">';
+  h+='<th style="text-align:center;padding:8px 6px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);width:36px">#</th>';
+  h+='<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Item / Especificacao</th>';
+  h+='<th style="text-align:center;padding:8px 8px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);width:90px">Em estoque</th>';
+  h+='<th style="text-align:center;padding:8px 8px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);width:90px">A comprar</th>';
+  h+='<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Status</th>';
+  h+='<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Observacoes</th>';
+  h+='<th style="padding:8px 6px;border-bottom:1px solid var(--border)"></th>';
+  h+='</tr></thead><tbody>';
+  if(!list.items.length)h+='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text3)">Nenhum item. Clique em Adicionar item.</td></tr>';
+  for(var i=0;i<list.items.length;i++){
+    var it=list.items[i];
+    var rowBg=i%2===0?'':'background:var(--surface2)';
+    h+='<tr style="border-bottom:1px solid var(--border);'+rowBg+'">';
+    h+='<td style="padding:10px 6px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);font-weight:600">'+(i+1)+'</td>';
+    h+='<td style="padding:10px"><div style="font-weight:500;color:var(--text)">'+esc(it.name)+'</div>';
+    if(it.spec)h+='<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px">'+esc(it.spec)+'</div>';
+    if(it.link)h+='<a href="'+esc(it.link)+'" target="_blank" style="font-size:11px;color:var(--green);text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:3px">Ver produto</a>';
+    h+='</td>';
+    var qs=it.qtyStock||0;
+    var qsColor=qs===0?'color:#8b2020':qs<=2?'color:#7a5c00':'color:#2d6124';
+    h+='<td style="padding:10px 8px;text-align:center;vertical-align:middle"><span style="font-size:18px;font-weight:700;font-family:var(--mono);'+qsColor+'">'+qs+'</span><div style="font-size:10px;color:var(--text3)">'+esc(it.unit||'un')+'</div></td>';
+    var qb=it.qty||0;
+    h+='<td style="padding:10px 8px;text-align:center;vertical-align:middle"><span style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text)">'+qb+'</span><div style="font-size:10px;color:var(--text3)">'+esc(it.unit||'un')+'</div></td>';
+    h+='<td style="padding:10px;vertical-align:middle"><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;'+sm[it.status||'falta']+'">'+sl[it.status||'falta']+'</span></td>';
+    h+='<td style="padding:10px;font-size:12px;color:var(--text2);max-width:180px;vertical-align:middle">'+esc(it.obs||'—')+'</td>';
+    h+='<td style="padding:10px 6px;vertical-align:middle">';
+    if(currentUser&&currentUser.role==='admin')h+='<div style="display:flex;gap:4px"><button class="pr-act" onclick="openListItemM(\'' +list.id+ '\',\'' +it.id+ '\')">editar</button><button class="pr-act del" onclick="delListItem(\'' +list.id+ '\',\'' +it.id+ '\')">excluir</button></div>';
+    h+='</td></tr>';
+  }
+  h+='</tbody></table></div></div>';
+  el.innerHTML=h;
+}
+function openListItemM(listId,itemId){
+  editListId=listId;editListItemId=itemId;
+  var list=findById(LISTS,listId);
+  var item=itemId?list&&list.items.filter(function(i){return i.id===itemId;})[0]:null;
+  document.getElementById('mh-litem-t').textContent=item?'Editar item':'Adicionar item';
+  document.getElementById('li-name').value=item?item.name:'';
+  document.getElementById('li-spec').value=item&&item.spec?item.spec:'';
+  document.getElementById('li-qty-stock').value=item&&item.qtyStock!==undefined?item.qtyStock:0;
+  document.getElementById('li-qty').value=item?item.qty:1;
+  document.getElementById('li-unit').value=item&&item.unit?item.unit:'un';
+  document.getElementById('li-link').value=item&&item.link?item.link:'';
+  document.getElementById('li-status').value=item?item.status:'falta';
+  document.getElementById('li-obs').value=item&&item.obs?item.obs:'';
+  showM('m-list-item');
+}
+function saveListItem(){
+  var name=document.getElementById('li-name').value.trim();if(!name)return;
+  var list=findById(LISTS,editListId);if(!list)return;
+  var isNew=!editListItemId;
+  var item={
+    id:editListItemId||'i'+Date.now(),
+    name:name,
+    spec:document.getElementById('li-spec').value.trim(),
+    qtyStock:parseInt(document.getElementById('li-qty-stock').value)||0,
+    qty:parseInt(document.getElementById('li-qty').value)||0,
+    unit:document.getElementById('li-unit').value.trim()||'un',
+    link:document.getElementById('li-link').value.trim(),
+    status:document.getElementById('li-status').value,
+    obs:document.getElementById('li-obs').value.trim()
+  };
+  if(editListItemId){var idx=-1;for(var i=0;i<list.items.length;i++)if(list.items[i].id===editListItemId){idx=i;break;}if(idx>=0)list.items[idx]=item;}
+  else list.items.push(item);
+  syncListItem(item, editListId, isNew);
+  closeM('m-list-item');renderSidebar();renderList(editListId);
+}
+function delListItem(listId,itemId){
+  var list=findById(LISTS,listId);if(!list)return;
+  list.items=list.items.filter(function(i){return i.id!==itemId;});
+  sbDelete('lista_itens',itemId);
+  renderSidebar();renderList(listId);
+}
+
+function openUserM(id){
+  editUserId=id||null;var u=id?findById(USERS,id):null;
+  document.getElementById('mh-user-t').textContent=u?'Editar usuario':'Adicionar usuario';
+  document.getElementById('mu-name').value=u?u.name:'';
+  document.getElementById('mu-login').value=u?u.login:'';
+  document.getElementById('mu-pass').value='';document.getElementById('mu-pass2').value='';
+  document.getElementById('ps-mu').className='pstrength';document.getElementById('psl-mu').textContent='Digite a senha';document.getElementById('psl-mu').className='pslbl';
+  var opts=document.getElementById('role-opts').querySelectorAll('.role-opt');
+  for(var i=0;i<opts.length;i++){opts[i].classList.remove('on');if(opts[i].classList.contains(u?u.role:'tech'))opts[i].classList.add('on');}
+  showM('m-user');
+}
+function saveUser(){
+  var name=document.getElementById('mu-name').value.trim();
+  var login=document.getElementById('mu-login').value.trim().toLowerCase();
+  var pass=document.getElementById('mu-pass').value;
+  var pass2=document.getElementById('mu-pass2').value;
+  var roleEl=document.getElementById('role-opts').querySelector('.role-opt.on');
+  var role='tech';if(roleEl){if(roleEl.classList.contains('admin'))role='admin';else role='tech';}
+  if(!name||!login){alert('Preencha nome e login.');return;}
+  if(!editUserId&&!pass){alert('Defina uma senha.');return;}
+  if(pass&&pass!==pass2){alert('As senhas nao coincidem.');return;}
+  if(pass&&pass.length<6){alert('Senha com minimo 6 caracteres.');return;}
+  if(editUserId){var u=findById(USERS,editUserId);if(u){u.name=name;u.login=login;u.role=role;if(pass)u.pass=pass;}}
+  else{for(var i=0;i<USERS.length;i++)if(USERS[i].login===login){alert('Login ja existe.');return;}USERS.push({id:'u'+Date.now(),name:name,login:login,pass:pass,role:role,active:true,last:'nunca'});}
+  closeM('m-user');renderUsersTable();
+}
+function openPassM(id){
+  passUserId=id;var u=findById(USERS,id);if(!u)return;
+  document.getElementById('m-pass-user-info').innerHTML='<div style="width:36px;height:36px;border-radius:50%;background:var(--green-light);color:var(--green3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">'+u.name[0]+'</div><div><div style="font-size:13px;font-weight:500">'+u.name+'</div><div style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+u.login+'</div></div>';
+  document.getElementById('mp-pass1').value='';document.getElementById('mp-pass2').value='';
+  document.getElementById('ps-mp').className='pstrength';document.getElementById('psl-mp').textContent='Nova senha';document.getElementById('psl-mp').className='pslbl';
+  showM('m-pass');
+}
+function savePw(){
+  var p1=document.getElementById('mp-pass1').value;var p2=document.getElementById('mp-pass2').value;
+  if(!p1){alert('Digite a nova senha.');return;}if(p1!==p2){alert('As senhas nao coincidem.');return;}if(p1.length<6){alert('Minimo 6 caracteres.');return;}
+  var u=findById(USERS,passUserId);if(u)u.pass=p1;
+  closeM('m-pass');alert('Senha alterada!');
+}
+function toggleUserActive(id){var u=findById(USERS,id);if(u)u.active=!u.active;renderUsersTable();}
+function confirmDelUser(id){
+  var u=findById(USERS,id);if(!u)return;
+  if(currentUser&&u.id===currentUser.id){alert('Nao pode excluir a propria conta.');return;}
+  document.getElementById('m-confirm-msg').textContent='Excluir usuario "'+u.name+'" ('+u.login+')?';
+  document.getElementById('m-confirm-ok').onclick=function(){USERS=USERS.filter(function(x){return x.id!==id;});closeM('m-confirm');renderUsersTable();};
+  showM('m-confirm');
+}
+function renderUsersTable(){
+  var tbody=document.getElementById('users-tbody');if(!tbody)return;
+  var cols=[['#EAF3DE','#27500A'],['#E6F1FB','#0C447C'],['#EEEDFE','#3C3489'],['#FAEEDA','#633806'],['#FAECE7','#712B13']];
+  var h='';
+  for(var i=0;i<USERS.length;i++){
+    var u=USERS[i];var col=cols[i%cols.length];
+    h+='<tr class="utr"><td class="utd" style="width:46px"><div class="u-av" style="background:'+col[0]+';color:'+col[1]+'">'+u.name[0]+'</div></td>';
+    h+='<td class="utd"><div class="u-name">'+u.name+'</div><div class="u-login">'+u.login+'</div></td>';
+    h+='<td class="utd"><span class="u-role '+(u.role==='admin'?'role-a':'role-t')+'">'+(u.role==='admin'?'Admin':'Tecnico')+'</span></td>';
+    h+='<td class="utd"><span class="u-status"><div class="udot '+(u.active?'on':'off')+'"></div>'+(u.active?'Ativo':'Inativo')+'</span></td>';
+    h+='<td class="utd" style="font-size:11px;color:var(--text3);font-family:var(--mono)">'+(u.last||'-')+'</td>';
+    h+='<td class="utd"><div class="u-acts"><button class="u-act" onclick="openUserM(\''+u.id+'\')">editar</button><button class="u-act" onclick="openPassM(\''+u.id+'\')">senha</button><button class="u-act" onclick="toggleUserActive(\''+u.id+'\')">'+(u.active?'desativar':'ativar')+'</button>';
+    if(!currentUser||u.id!==currentUser.id)h+='<button class="u-act del" onclick="confirmDelUser(\''+u.id+'\')">excluir</button>';
+    h+='</div></td></tr>';
+  }
+  tbody.innerHTML=h;
+  var lbl=document.getElementById('u-count-lbl');if(lbl){var at=USERS.filter(function(u){return u.active;}).length;lbl.textContent=USERS.length+' usuarios - '+at+' ativo'+(at!==1?'s':'');}
+}
+function renderCatsList(){
+  var el=document.getElementById('cats-list');if(!el)return;
+  var lbl=document.getElementById('cat-count-lbl');if(lbl)lbl.textContent=CATS.length+' categorias';
+  var h='';
+  for(var i=0;i<CATS.length;i++){
+    var c=CATS[i];var cnt=0;for(var j=0;j<PROCS.length;j++)if(PROCS[j].cat===c.id)cnt++;
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:6px"><div style="width:32px;height:32px;border-radius:7px;background:var(--green-light);display:flex;align-items:center;justify-content:center;color:var(--green3)"><i class="ti '+c.icon+'" style="font-size:16px"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:500">'+c.label+'</div><div style="font-size:10px;color:var(--text3)">'+cnt+' processo'+(cnt!==1?'s':'')+'</div></div><button class="u-act" onclick="openCatM(\''+c.id+'\')">editar</button><button class="u-act del" onclick="confirmDelCat(\''+c.id+'\')">excluir</button></div>';
+  }
+  el.innerHTML=h||'<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px">Nenhuma categoria.</p>';
+}
+function openCfg(sec){document.getElementById('cfg-panel').classList.add('show');showCfgSec(sec||'sec-usuarios');renderUsersTable();renderCatsList();}
+function closeCfg(){document.getElementById('cfg-panel').classList.remove('show');}
+function showCfgSec(id,btn){
+  var secs=document.querySelectorAll('.cfg-section');for(var i=0;i<secs.length;i++)secs[i].classList.remove('active');
+  var btns=document.querySelectorAll('.cfg-nav-btn');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  var sec=document.getElementById(id);if(sec)sec.classList.add('active');
+  if(btn)btn.classList.add('active');
+  var titles={'sec-usuarios':['Usuarios','Gerencie quem acessa a Wiki TIC'],'sec-perms':['Permissoes','Defina o que cada perfil pode fazer'],'sec-cats':['Categorias','Organize as categorias'],'sec-sistema':['Sistema','Preferencias gerais']};
+  var t=titles[id]||['Configuracoes',''];
+  document.getElementById('cfg-head-title').textContent=t[0];document.getElementById('cfg-head-sub').textContent=t[1];
+  if(id==='sec-usuarios')renderUsersTable();if(id==='sec-cats')renderCatsList();if(id==='sec-sistema')loadLoginConfigUI();
+}
+document.getElementById('cfg-panel').addEventListener('click',function(e){if(e.target===document.getElementById('cfg-panel'))closeCfg();});
+function showM(id){document.getElementById(id).classList.add('show');}
+function closeM(id){document.getElementById(id).classList.remove('show');}
+// Modals close only via X, Cancel or Save buttons
+function updIcon(){var v=document.getElementById('mp-icon').value.trim()||'ti-file';document.getElementById('icon-prev-i').className='ti '+v;document.getElementById('icon-prev-t').textContent=v;}
+function updCatIcon(){var v=document.getElementById('mc-icon').value.trim()||'ti-folder';document.getElementById('cat-icon-prev-i').className='ti '+v;document.getElementById('cat-icon-prev-t').textContent=v;}
+function setCatIcon(icon,el){document.getElementById('mc-icon').value=icon;updCatIcon();var brow=el.closest('.badge-row').querySelectorAll('.badge-opt');for(var i=0;i<brow.length;i++)brow[i].classList.remove('on');el.classList.add('on');}
+function selBadge(el,rowId){var brow=document.getElementById(rowId).querySelectorAll('.badge-opt');for(var i=0;i<brow.length;i++)brow[i].classList.remove('on');el.classList.add('on');}
+function selRole(el){var opts=el.closest('.role-opts').querySelectorAll('.role-opt');for(var i=0;i<opts.length;i++)opts[i].classList.remove('on');el.classList.add('on');}
+function togglePw(id,btn){var inp=document.getElementById(id);var show=inp.type==='text';inp.type=show?'password':'text';btn.innerHTML=show?'&#128065;':'&#128064;';}
+function chkStr(inpId,barId,lblId){
+  var v=document.getElementById(inpId).value;var bar=document.getElementById(barId);var lbl=document.getElementById(lblId);if(!bar||!lbl)return;
+  var sc=0;if(v.length>=6)sc++;if(/[A-Z]/.test(v))sc++;if(/[0-9]/.test(v))sc++;if(/[^a-zA-Z0-9]/.test(v))sc++;
+  bar.className='pstrength';lbl.className='pslbl';
+  if(!v){bar.style.cssText='';lbl.textContent='Digite a senha';return;}
+  if(sc<=1){bar.classList.add('w');lbl.classList.add('w');lbl.textContent='Senha fraca';}
+  else if(sc<=2){bar.classList.add('m');lbl.classList.add('m');lbl.textContent='Senha media';}
+  else{bar.classList.add('s');lbl.classList.add('s');lbl.textContent='Senha forte';}
+}
+function exportData(){var d=JSON.stringify({CATS:CATS,PROCS:PROCS,LISTS:LISTS,STOCK:STOCK},null,2);var a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(d);a.download='wiki-tic-backup.json';a.click();}
+function renderStock(stockId){
+  var el=document.getElementById('content');
+  var grp=null;for(var i=0;i<STOCK.length;i++)if(STOCK[i].id===stockId){grp=STOCK[i];break;}
+  if(!grp){el.innerHTML='';return;}
+  var cond={novo:'background:#e8f5e2;color:#2d6124',usado:'background:#e8f0fb;color:#1a4a7a',defeito:'background:#fff0f0;color:#8b2020',emprestado:'background:#fff8e1;color:#7a5c00'};
+  var condL={novo:'Novo',usado:'Usado',defeito:'Com defeito',emprestado:'Emprestado'};
+  var total=0,novo=0,usado=0,defeito=0;
+  for(var i=0;i<grp.items.length;i++){var it=grp.items[i];total+=it.qty||0;if(it.condition==='novo')novo+=it.qty||0;else if(it.condition==='usado')usado+=it.qty||0;else if(it.condition==='defeito')defeito+=it.qty||0;}
+  var h='<div>';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
+  h+='<div style="width:42px;height:42px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;color:var(--green3);font-size:20px"><i class="ti '+grp.icon+'"></i></div>';
+  h+='<div style="flex:1"><div style="font-size:16px;font-weight:500">'+esc(grp.name)+'</div><div style="font-size:12px;color:var(--text3)">Controle de estoque fisico</div></div>';
+  if(currentUser&&currentUser.role==='admin')h+='<button onclick="openStockItemM(\'' +grp.id+ '\',null)" style="padding:7px 14px;border-radius:var(--rs);background:var(--green);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer">+ Adicionar item</button>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"><div style="font-size:22px;font-weight:700;font-family:var(--mono)">'+total+'</div><div style="font-size:11px;color:var(--text3)">Total</div></div>';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:#2d6124">'+novo+'</div><div style="font-size:11px;color:var(--text3)">Novos</div></div>';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:#1a4a7a">'+usado+'</div><div style="font-size:11px;color:var(--text3)">Usados</div></div>';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:#8b2020">'+defeito+'</div><div style="font-size:11px;color:var(--text3)">Com defeito</div></div>';
+  h+='</div>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">';
+  h+='<thead><tr style="background:var(--surface2)">';
+  h+='<th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);width:36px">#</th>';
+  h+='<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Item</th>';
+  h+='<th style="padding:8px 8px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);width:70px">Qtd</th>';
+  h+='<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Estado</th>';
+  h+='<th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Na caixa</th>';
+  h+='<th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Bateria trocada</th>';
+  h+='<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border)">Observacoes</th>';
+  h+='<th style="padding:8px 6px;border-bottom:1px solid var(--border)"></th>';
+  h+='</tr></thead><tbody>';
+  if(!grp.items.length)h+='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text3)">Nenhum item cadastrado.</td></tr>';
+  for(var i=0;i<grp.items.length;i++){
+    var it=grp.items[i];
+    var bg=i%2===0?'':'background:var(--surface2)';
+    h+='<tr style="border-bottom:1px solid var(--border);'+bg+'">';
+    h+='<td style="padding:10px 6px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);font-weight:600">'+(i+1)+'</td>';
+    h+='<td style="padding:10px"><div style="font-weight:500">'+esc(it.name)+'</div>';
+    if(it.spec)h+='<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px">'+esc(it.spec)+'</div>';
+    h+='</td>';
+    h+='<td style="padding:10px;text-align:center"><span style="font-size:20px;font-weight:700;font-family:var(--mono)">'+( it.qty||0)+'</span><div style="font-size:10px;color:var(--text3)">'+esc(it.unit||'un')+'</div></td>';
+    h+='<td style="padding:10px"><span style="display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500;'+(cond[it.condition]||cond.usado)+'">'+( condL[it.condition]||'Usado')+'</span></td>';
+    h+='<td style="padding:10px;text-align:center;font-size:18px">'+(it.inBox?'&#9989;':'&#10060;')+'</td>';
+    h+='<td style="padding:10px;text-align:center;font-size:18px">'+(it.batteryReplaced?'&#9989;':'&#8212;')+'</td>';
+    h+='<td style="padding:10px;font-size:12px;color:var(--text2)">'+esc(it.obs||'—')+'</td>';
+    h+='<td style="padding:10px 6px">';
+    if(currentUser&&currentUser.role==='admin')h+='<div style="display:flex;gap:4px"><button class="pr-act" onclick="openStockItemM(\'' +grp.id+ '\',\'' +it.id+ '\')" >editar</button><button class="pr-act del" onclick="delStockItem(\'' +grp.id+ '\',\'' +it.id+ '\')">excluir</button></div>';
+    h+='</td></tr>';
+  }
+  h+='</tbody></table></div></div>';
+  el.innerHTML=h;
+}
+function openStockItemM(groupId,itemId){
+  editStockId=groupId;editStockItemId=itemId||null;
+  var grp=null;for(var i=0;i<STOCK.length;i++)if(STOCK[i].id===groupId){grp=STOCK[i];break;}
+  var item=null;if(itemId&&grp)for(var i=0;i<grp.items.length;i++)if(grp.items[i].id===itemId){item=grp.items[i];break;}
+  document.getElementById('mh-stock-t').textContent=item?'Editar item':'Adicionar item ao estoque';
+  document.getElementById('si-name').value=item?item.name:'';
+  document.getElementById('si-spec').value=item&&item.spec?item.spec:'';
+  document.getElementById('si-qty').value=item?item.qty:1;
+  document.getElementById('si-unit').value=item&&item.unit?item.unit:'un';
+  document.getElementById('si-condition').value=item?item.condition:'novo';
+  document.getElementById('si-inbox').checked=item?!!item.inBox:false;
+  document.getElementById('si-battery').checked=item?!!item.batteryReplaced:false;
+  document.getElementById('si-obs').value=item&&item.obs?item.obs:'';
+  showM('m-stock-item');
+}
+function saveStockItem(){
+  var name=document.getElementById('si-name').value.trim();if(!name)return;
+  var grp=null;for(var i=0;i<STOCK.length;i++)if(STOCK[i].id===editStockId){grp=STOCK[i];break;}
+  if(!grp)return;
+  var isNew=!editStockItemId;
+  var item={id:editStockItemId||'si'+Date.now(),name:name,spec:document.getElementById('si-spec').value.trim(),qty:parseInt(document.getElementById('si-qty').value)||0,unit:document.getElementById('si-unit').value||'un',condition:document.getElementById('si-condition').value,inBox:document.getElementById('si-inbox').checked,batteryReplaced:document.getElementById('si-battery').checked,obs:document.getElementById('si-obs').value.trim()};
+  if(editStockItemId){var idx=-1;for(var i=0;i<grp.items.length;i++)if(grp.items[i].id===editStockItemId){idx=i;break;}if(idx>=0)grp.items[idx]=item;}
+  else grp.items.push(item);
+  syncStockItem(item, editStockId, isNew);
+  closeM('m-stock-item');renderSidebar();renderStock(editStockId);
+}
+function delStockItem(groupId,itemId){
+  var grp=null;for(var i=0;i<STOCK.length;i++)if(STOCK[i].id===groupId){grp=STOCK[i];break;}
+  if(!grp)return;
+  grp.items=grp.items.filter(function(it){return it.id!==itemId;});
+  sbDelete('estoque_itens',itemId);
+  renderSidebar();renderStock(groupId);
+}
+
+var loginConfig={badge:'IDSM',title:'Instituto Mamiraua',sub:'Procedimentos de TIC',color:'#3a7c2e',appName:'Wiki TIC'};
+
+function loadLoginConfigUI(){
+  var b=document.getElementById('cfg-login-badge');
+  var t=document.getElementById('cfg-login-title');
+  var sb=document.getElementById('cfg-login-sub');
+  var an=document.getElementById('cfg-app-name');
+  if(b)b.value=loginConfig.badge;
+  if(t)t.value=loginConfig.title;
+  if(sb)sb.value=loginConfig.sub;
+  if(an)an.value=loginConfig.appName||'Wiki TIC';
+  updateLoginPreview();
+}
+function updateAppNamePreview(){
+  var an=document.getElementById('cfg-app-name');
+  if(!an)return;
+  var val=an.value.trim()||'Wiki TIC';
+  var tbLogo=document.querySelector('.tb-logo');
+  if(tbLogo)tbLogo.innerHTML='<div class="tb-dot"></div>'+val;
+}
+function updateLoginPreview(){
+  var b=document.getElementById('cfg-login-badge');
+  var t=document.getElementById('cfg-login-title');
+  var sb=document.getElementById('cfg-login-sub');
+  var prev_b=document.getElementById('prev-badge');
+  var prev_t=document.getElementById('prev-title');
+  var prev_s=document.getElementById('prev-sub');
+  if(b&&prev_b){prev_b.textContent=b.value||'IDSM';prev_b.style.background=loginConfig.color;}
+  if(t&&prev_t)prev_t.textContent=t.value||'Instituto Mamiraua';
+  if(sb&&prev_s)prev_s.textContent=sb.value||'Procedimentos de TIC';
+}
+function setBadgeColor(color,el){
+  loginConfig.color=color;
+  var opts=document.getElementById('cfg-color-opts');
+  if(opts){var divs=opts.querySelectorAll('div');for(var i=0;i<divs.length;i++)divs[i].style.border='3px solid transparent';}
+  if(el)el.style.border='3px solid #fff';
+  var pick=document.getElementById('cfg-badge-color-pick');
+  if(pick)pick.value=color;
+  updateLoginPreview();
+}
+function setBadgeColorCustom(color){
+  loginConfig.color=color;
+  var opts=document.getElementById('cfg-color-opts');
+  if(opts){var divs=opts.querySelectorAll('div');for(var i=0;i<divs.length;i++)divs[i].style.border='3px solid transparent';}
+  updateLoginPreview();
+}
+function applyLoginConfig(){
+  var b=document.getElementById('cfg-login-badge');
+  var t=document.getElementById('cfg-login-title');
+  var sb=document.getElementById('cfg-login-sub');
+  var an=document.getElementById('cfg-app-name');
+  if(b)loginConfig.badge=b.value.trim()||'IDSM';
+  if(t)loginConfig.title=t.value.trim()||'Instituto Mamiraua';
+  if(sb)loginConfig.sub=sb.value.trim()||'Procedimentos de TIC';
+  if(an&&an.value.trim())loginConfig.appName=an.value.trim();
+  var elBadge=document.querySelector('.logo-badge');
+  var elTitle=document.querySelector('.login-logo h1');
+  var elSub=document.querySelector('.login-logo p');
+  if(elBadge){elBadge.textContent=loginConfig.badge;elBadge.style.background=loginConfig.color;}
+  if(elTitle)elTitle.textContent=loginConfig.title;
+  if(elSub)elSub.textContent=loginConfig.sub;
+  var tbLogo=document.querySelector('.tb-logo');
+  if(tbLogo&&loginConfig.appName){
+    tbLogo.innerHTML='<div class="tb-dot"></div>'+loginConfig.appName;
+  }
+  var sbLogo=document.querySelector('.cfg-sb-logo-t');
+  if(sbLogo&&loginConfig.appName)sbLogo.textContent=loginConfig.appName;
+  alert('Configuracoes aplicadas com sucesso!');
+}
+
+function renderDesc(text){
+  if(!text) return '';
+  var lines = text.split('\n');
+  var out = '';
+  for(var li=0;li<lines.length;li++){
+    var line = lines[li];
+    if(!line.trim()){out+='<br>';continue;}
+    // Detect navigation path (contains >)
+    if(line.indexOf(' > ')>=0 || (line.indexOf('>')>=0 && line.indexOf('Página')>=0) || line.indexOf('Inicial >')>=0){
+      out += renderPath(line);
+    } else {
+      out += renderLine(line);
+    }
+    if(li < lines.length-1) out += '<br>';
+  }
+  return out;
+}
+
+function renderPath(line){
+  var parts = line.split('>');
+  var h = '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:3px;margin:4px 0;padding:8px 10px;background:var(--surface2);border-radius:var(--rs);border:1px solid var(--border)">';
+  for(var i=0;i<parts.length;i++){
+    var part = parts[i].trim();
+    if(!part) continue;
+    var isURL = part.indexOf('http')===0;
+    var isAction = !isURL && (part.indexOf('Salvar')>=0||part.indexOf('Marcar')>=0||part.indexOf('Buscar')>=0||part.indexOf('Pesquisar')>=0||part.indexOf('Excluir')>=0||part.indexOf('Restaurar')>=0||part.indexOf('Requisitar')>=0);
+    var isSelect = !isURL && (part.indexOf('Selecionar')>=0||part.indexOf('Clicar')>=0);
+    var isOrg = !isURL && part.length > 30;
+    var bg,color,bdr,fw;
+    if(isURL){bg='var(--surface)';color='var(--blue)';bdr='var(--blue-bdr)';fw='400';}
+    else if(isSelect){bg='var(--green-light)';color='var(--green3)';bdr='var(--green-border)';fw='600';}
+    else if(isAction){bg='var(--amber-bg)';color='var(--amber)';bdr='var(--amber-bdr)';fw='600';}
+    else if(isOrg){bg='var(--surface2)';color='var(--text2)';bdr='var(--border2)';fw='400';}
+    else{bg='var(--blue-bg)';color='var(--blue)';bdr='var(--blue-bdr)';fw='500';}
+    h+='<span style="display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:'+fw+';background:'+bg+';color:'+color+';border:1px solid '+bdr+';max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(part)+'">'+esc(part)+'</span>';
+    if(i<parts.length-1&&parts[i+1].trim()){
+      h+='<span style="color:var(--text3);font-size:14px;font-weight:300;flex-shrink:0">&#8250;</span>';
+    }
+  }
+  h+='</div>';
+  return h;
+}
+
+function renderLine(line){
+  var trimmed = line.trim();
+  // URL line
+  if(trimmed.indexOf('http')===0){
+    return '<a href="'+esc(trimmed)+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--blue);font-family:var(--mono);margin:2px 0;text-decoration:none;padding:3px 8px;background:var(--blue-bg);border-radius:4px;border:1px solid var(--blue-bdr)">&#128279; '+esc(trimmed)+'</a>';
+  }
+  // Numbered items
+  var numMatch = trimmed.match(/^(\d+)\.\s+(.+)/);
+  if(numMatch){
+    return '<div style="display:flex;gap:7px;align-items:flex-start;margin:3px 0;font-size:12px;color:var(--text2)"><span style="min-width:18px;height:18px;border-radius:50%;background:var(--green-light);color:var(--green3);font-size:10px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'+numMatch[1]+'</span><span style="line-height:1.5">'+esc(numMatch[2])+'</span></div>';
+  }
+  // Checkbox [x] or [ ]
+  if(trimmed.indexOf('[x]')>=0||trimmed.indexOf('[ ]')>=0){
+    var checked=trimmed.indexOf('[x]')>=0;
+    var label=trimmed.replace('[x]','').replace('[ ]','').trim();
+    return '<div style="display:flex;align-items:flex-start;gap:7px;margin:3px 0;font-size:12px;color:var(--text2);cursor:pointer" onclick="this.querySelector(\'span.chkbox\').style.background=this.querySelector(\'span.chkbox\').style.background===\'var(--green)\'?\'transparent\':\'var(--green)\'">'+
+           '<span class="chkbox" style="width:15px;height:15px;border-radius:3px;border:1.5px solid '+(checked?'var(--green)':'var(--border2)')+';background:'+(checked?'var(--green)':'transparent')+';display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0;margin-top:1px">'+(checked?'&#10003;':'')+'</span>'+
+           '<span style="line-height:1.5">'+esc(label)+'</span></div>';
+  }
+  // Plain text
+  return '<span style="font-size:12px;color:var(--text2);line-height:1.6;display:block;margin:1px 0">'+esc(trimmed)+'</span>';
+}
+
+var flowProcId=null, flowBranchIdx=0;
+
+function openFlow(procId){
+  var proc=findById(PROCS,procId);
+  if(!proc)return;
+  flowProcId=procId;
+  flowBranchIdx=0;
+  document.getElementById('flow-proc-title').textContent='Fluxo: '+proc.label;
+  renderFlowBranchTabs(proc);
+  renderFlow(proc,0);
+  showM('m-flow');
+}
+
+function renderFlowBranchTabs(proc){
+  var el=document.getElementById('flow-branch-tabs');
+  if(!el)return;
+  if(proc.branches.length<=1){el.style.display='none';return;}
+  el.style.display='flex';
+  var h='';
+  for(var i=0;i<proc.branches.length;i++){
+    h+='<button onclick="switchFlowBranch('+i+')" id="ftab-'+i+'" style="padding:4px 12px;border-radius:14px;border:1px solid '+(i===0?'var(--green)':'var(--border2)')+';background:'+(i===0?'var(--green)':'#fff')+';color:'+(i===0?'#fff':'var(--text2)')+';font-size:11px;cursor:pointer;font-family:var(--font)">'+proc.branches[i].label+'</button>';
+  }
+  el.innerHTML=h;
+}
+
+function switchFlowBranch(idx){
+  flowBranchIdx=idx;
+  var proc=findById(PROCS,flowProcId);
+  if(!proc)return;
+  var tabs=document.querySelectorAll('[id^="ftab-"]');
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].style.background=i===idx?'var(--green)':'#fff';
+    tabs[i].style.color=i===idx?'#fff':'var(--text2)';
+    tabs[i].style.borderColor=i===idx?'var(--green)':'var(--border2)';
+  }
+  renderFlow(proc,idx);
+}
+
+function stepColor(s){
+  if(s.warn)return{bg:'#FAEEDA',bdr:'#EF9F27',col:'#412402'};
+  if(s.info)return{bg:'#E6F1FB',bdr:'#85B7EB',col:'#0C447C'};
+  if(s.code&&s.code.indexOf('http')===0)return{bg:'#E6F1FB',bdr:'var(--blue-bdr)',col:'var(--blue)'};
+  if(s.checks&&s.checks.length)return{bg:'var(--green-light)',bdr:'var(--green-border)',col:'var(--green3)'};
+  return{bg:'var(--surface)',bdr:'var(--border2)',col:'var(--text)'};
+}
+
+function renderFlow(proc,bIdx){
+  var canvas=document.getElementById('flow-canvas');
+  var svg=document.getElementById('flow-svg');
+  if(!canvas||!svg)return;
+
+  var branch=proc.branches[bIdx]||proc.branches[0];
+  var steps=branch.steps;
+
+  var NODE_W=140, NODE_H=52, GAP_X=50, GAP_Y=20, PAD=20;
+  var COLS=3;
+  var rows=Math.ceil(steps.length/COLS);
+  var totalW=COLS*(NODE_W+GAP_X)+PAD*2;
+  var totalH=rows*(NODE_H+GAP_Y)+PAD*2+60;
+
+  canvas.style.minWidth=totalW+'px';
+  canvas.style.minHeight=totalH+'px';
+
+  var nodes=[];
+  var nodeEls='';
+
+  for(var i=0;i<steps.length;i++){
+    var s=steps[i];
+    var col=i%COLS;
+    var row=Math.floor(i/COLS);
+    var isLast=(i===steps.length-1);
+    var c=isLast?{bg:'#EEEDFE',bdr:'#534AB7',col:'#26215C'}:stepColor(s);
+    var x=PAD+col*(NODE_W+GAP_X);
+    var y=PAD+row*(NODE_H+GAP_Y);
+
+    var tipText='Passo '+(i+1)+': '+s.title;
+    if(s.desc)tipText+='. '+s.desc;
+    if(s.warn)tipText+=' AVISO: '+s.warn;
+    if(s.info)tipText+=' DICA: '+s.info;
+    if(s.checks&&s.checks.length)tipText+=' Checklist: '+s.checks.join(', ');
+
+    nodes.push({x:x,y:y,w:NODE_W,h:NODE_H,i:i});
+    nodeEls+='<div id="fnd-'+i+'" data-tip="'+tipText.replace(/"/g,'&quot;').substr(0,250)+'" style="position:absolute;left:'+x+'px;top:'+y+'px;width:'+NODE_W+'px;min-height:'+NODE_H+'px;background:'+c.bg+';border:1.5px solid '+c.bdr+';color:'+c.col+';border-radius:7px;font-size:11px;font-weight:500;padding:6px 8px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:help;line-height:1.3;box-sizing:border-box'+(isLast?';border-width:2px':'')+'">';
+    nodeEls+='<div><div style="font-size:10px;font-family:var(--mono);opacity:.6;margin-bottom:2px">'+(i+1)+'</div>'+esc(s.title.length>40?s.title.substr(0,40)+'...':s.title)+'</div></div>';
+  }
+
+  canvas.innerHTML=nodeEls;
+
+  svg.innerHTML='<defs><marker id="farr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
+
+  for(var i=0;i<steps.length-1;i++){
+    var cur=nodes[i], nxt=nodes[i+1];
+    var sameRow=Math.floor(i/COLS)===Math.floor((i+1)/COLS);
+    var x1,y1,x2,y2,d;
+    if(sameRow){
+      x1=cur.x+cur.w; y1=cur.y+cur.h/2;
+      x2=nxt.x; y2=nxt.y+nxt.h/2;
+      d='M'+x1+','+y1+' C'+(x1+GAP_X/2)+','+y1+' '+(x2-GAP_X/2)+','+y2+' '+x2+','+y2;
+    } else {
+      x1=cur.x+cur.w/2; y1=cur.y+cur.h;
+      x2=nxt.x+nxt.w/2; y2=nxt.y;
+      var mx=(x1+x2)/2, my=(y1+y2)/2;
+      d='M'+x1+','+y1+' Q'+mx+','+my+' '+x2+','+y2;
+    }
+    var c=stepColor(steps[i+1]);
+    var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke',c.bdr||'#888780');
+    path.setAttribute('stroke-width','1.5');
+    path.setAttribute('stroke-linecap','round');
+    path.setAttribute('opacity','0.7');
+    path.setAttribute('marker-end','url(#farr)');
+    svg.appendChild(path);
+  }
+
+  var tip=document.getElementById('flow-tooltip');
+  canvas.querySelectorAll('[data-tip]').forEach(function(el){
+    el.addEventListener('mouseenter',function(ev){
+      tip.textContent=el.getAttribute('data-tip');
+      tip.style.opacity='1';
+      tip.style.left=(ev.clientX+12)+'px';
+      tip.style.top=(ev.clientY+12)+'px';
+    });
+    el.addEventListener('mousemove',function(ev){
+      tip.style.left=(ev.clientX+12)+'px';
+      tip.style.top=(ev.clientY+12)+'px';
+    });
+    el.addEventListener('mouseleave',function(){tip.style.opacity='0';});
+  });
+}
+
+function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+</script>
+</body>
+</html>
