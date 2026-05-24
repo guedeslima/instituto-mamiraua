@@ -791,6 +791,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 
 
+
+
+
 var _ativoReg={};
 function _regAtivo(tipo,item,pred,dept){
   var key='r'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
@@ -1699,7 +1702,7 @@ function render(){
     h+='<i class="ti ti-chevron-down cat-chev"></i>';
     h+='</div>';
     if(pOpen){
-      h+='<div class="cat-body">';
+      h+='<div class="cat-body open">';
       catProcs.forEach(function(proc){
         var total=0;
         if(proc.branches)proc.branches.forEach(function(b){total+=b.steps?b.steps.length:0;});
@@ -1720,7 +1723,7 @@ function render(){
         h+='<i class="ti ti-chevron-down pr-chev"></i>';
         h+='</div>';
         if(pOpen2){
-          h+='<div class="proc-body">';
+          h+='<div class="proc-body open">';
           if(proc.branches){
             proc.branches.forEach(function(branch,bi){
               if(proc.branches.length>1)h+='<div class="branch-tab">'+esc(branch.label)+'</div>';
@@ -1759,33 +1762,6 @@ function render(){
   }
   
   el2.innerHTML=h;
-
-  if(activeCat&&activeCat.indexOf('list-')===0){renderList(activeCatList);return;}
-  if(activeCat&&activeCat.indexOf('stock-')===0){renderStock(activeStock);return;}
-  var el=document.getElementById('content');
-  var procs=[];
-  for(var i=0;i<PROCS.length;i++){
-    if(activeCat==='todos'||PROCS[i].cat===activeCat)procs.push(PROCS[i]);
-  }
-  if(filterQ){
-    var fp=[];
-    for(var i=0;i<procs.length;i++){
-      var p=procs[i];
-      if(p.label.toLowerCase().indexOf(filterQ)>=0){fp.push(p);continue;}
-      for(var b=0;b<p.branches.length;b++)for(var s=0;s<p.branches[b].steps.length;s++)if(p.branches[b].steps[s].title.toLowerCase().indexOf(filterQ)>=0){fp.push(p);break;}
-    }
-    procs=fp;
-  }
-  var catsToShow=[];
-  for(var i=0;i<CATS.length;i++){
-    if(activeCat==='todos'||activeCat===CATS[i].id){
-      var hasproc=false;for(var j=0;j<procs.length;j++)if(procs[j].cat===CATS[i].id){hasproc=true;break;}
-      if(hasproc)catsToShow.push(CATS[i]);
-    }
-  }
-  if(!procs.length){el.innerHTML='<div class="empty"><p style="font-size:13px;color:var(--text2)">Nenhum processo encontrado.</p></div>';return;}
-  
-  var lbl=document.getElementById('u-count-lbl');if(lbl){var at=USERS.filter(function(u){return u.active;}).length;lbl.textContent=USERS.length+' usuarios - '+at+' ativo'+(at!==1?'s':'');}
 }
 function renderCatsList(){
   var el=document.getElementById('cats-list');if(!el)return;
@@ -3052,55 +3028,6 @@ function saveProc(){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
