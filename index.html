@@ -499,6 +499,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .branch-tab{font-size:11px;font-weight:600;color:var(--green3);padding:8px 16px;background:var(--green-light);border-bottom:1px solid var(--green-border);text-transform:uppercase;letter-spacing:.06em}
 .cat-body{border-top:1px solid var(--border)}
 
+
+/* ── BRANCH TABS ───────────────────────── */
+.branch-tabs{display:flex;gap:4px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;align-items:center}
+.branch-tab-btn{padding:5px 14px;border-radius:14px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.branch-tab-btn:hover{border-color:var(--green);color:var(--green)}
+.branch-tab-btn.on{background:var(--green);border-color:var(--green);color:#fff}
+.branch-tab-btn.add-branch{background:none;border:1px dashed var(--border2);color:var(--text3);font-size:11px;margin-left:4px}
+.branch-tab-btn.add-branch:hover{border-color:var(--green);color:var(--green)}
+.add-step-bar{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface)}
+.add-step-btn{padding:5px 14px;border-radius:var(--rs);border:1px solid var(--green-border);background:var(--green-light);color:var(--green3);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.add-step-btn:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.add-step-btn.edit-btn{background:var(--blue-bg);border-color:var(--blue-bdr);color:var(--blue)}
+.add-step-btn.edit-btn:hover{background:var(--blue);color:#fff}
+.empty-steps{padding:20px 16px;color:var(--text3);font-size:12px;font-style:italic;text-align:center}
+
 </style>
 </head>
 <body>
@@ -784,6 +799,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
 
 
 
@@ -1723,11 +1739,30 @@ function render(){
         h+='<i class="ti ti-chevron-down pr-chev"></i>';
         h+='</div>';
         if(pOpen2){
+          var activeBranch=openBranch[proc.id]||0;
           h+='<div class="proc-body open">';
-          if(proc.branches){
-            proc.branches.forEach(function(branch,bi){
-              if(proc.branches.length>1)h+='<div class="branch-tab">'+esc(branch.label)+'</div>';
-              if(branch.steps)branch.steps.forEach(function(step,si){
+          // Branch tabs
+          if(proc.branches&&proc.branches.length>0){
+            if(proc.branches.length>1){
+              h+='<div class="branch-tabs">';
+              proc.branches.forEach(function(branch,bi){
+                h+='<button class="branch-tab-btn'+(bi===activeBranch?' on':'')+'" onclick="switchBranch(\''+proc.id+'\','+bi+');event.stopPropagation()">'+esc(branch.label)+'</button>';
+              });
+              h+='<button class="branch-tab-btn add-branch" onclick="addBranch(\''+proc.id+'\');event.stopPropagation()">+ Nova aba</button>';
+              h+='</div>';
+            } else {
+              h+='<div class="branch-tabs">';
+              h+='<button class="branch-tab-btn on">'+esc(proc.branches[0].label)+'</button>';
+              h+='<button class="branch-tab-btn add-branch" onclick="addBranch(\''+proc.id+'\');event.stopPropagation()">+ Nova aba</button>';
+              h+='</div>';
+            }
+            // Show active branch steps
+            var branch=proc.branches[activeBranch]||proc.branches[0];
+            var steps=branch?branch.steps||[]:[];
+            if(!steps.length){
+              h+='<div class="empty-steps">Nenhum passo. Clique em + Adicionar passo.</div>';
+            } else {
+              steps.forEach(function(step,si){
                 h+='<div class="step-item">';
                 h+='<div class="step-num">'+(si+1)+'</div>';
                 h+='<div class="step-body">';
@@ -1739,13 +1774,22 @@ function render(){
                 if(step.checks&&step.checks.length){
                   h+='<div class="step-checks">';
                   step.checks.forEach(function(ch,ci){
-                    h+='<label class="check-item"><input type="checkbox" onchange="markCheck(\''+proc.id+'\','+bi+','+si+','+ci+',this.checked)"> '+esc(ch)+'</label>';
+                    h+='<label class="check-item"><input type="checkbox" onchange="markCheck(\''+proc.id+'\','+activeBranch+','+si+','+ci+',this.checked)"> '+esc(ch)+'</label>';
                   });
                   h+='</div>';
                 }
                 h+='</div></div>';
               });
-            });
+            }
+            // Add step button
+            if(currentUser&&currentUser.role==='admin'){
+              h+='<div class="add-step-bar">';
+              h+='<button class="add-step-btn" onclick="quickAddStep(\''+proc.id+'\','+activeBranch+');event.stopPropagation()">+ Adicionar passo</button>';
+              if(steps.length>0){
+                h+='<button class="add-step-btn edit-btn" onclick="openEditProcEnhanced(\''+proc.id+'\');event.stopPropagation()">✏ Editar todos</button>';
+              }
+              h+='</div>';
+            }
           }
           h+='</div>';
         }
@@ -3026,8 +3070,40 @@ function saveProc(){
   render();
 }
 
+// ── BRANCH & STEP HELPERS ─────────────────────────────────
+var openBranch={};
+
+function switchBranch(procId, branchIdx){
+  openBranch[procId]=branchIdx;
+  render();
+}
+
+function addBranch(procId){
+  var proc=findById(PROCS,procId);
+  if(!proc)return;
+  var label=prompt('Nome da nova aba (ex: Se não liga):');
+  if(!label)return;
+  if(!proc.branches)proc.branches=[];
+  proc.branches.push({label:label,steps:[]});
+  openBranch[procId]=proc.branches.length-1;
+  syncProc(proc,false);
+  render();
+}
+
+function quickAddStep(procId, branchIdx){
+  var proc=findById(PROCS,procId);
+  if(!proc)return;
+  if(!proc.branches||!proc.branches[branchIdx])return;
+  var title=prompt('Título do passo:');
+  if(!title)return;
+  proc.branches[branchIdx].steps.push({title:title,desc:'',checks:[],warn:'',info:''});
+  syncProc(proc,false);
+  render();
+}
+
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 
 
 
