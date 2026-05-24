@@ -461,7 +461,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .comp-list{display:none;background:var(--surface2)}
 .comp-list.open{display:block}
 .comp-tbl{width:100%;border-collapse:collapse;font-size:11px}
-.comp-tbl th{padding:7px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;font-family:var(--mono);position:sticky;top:0;z-index:2}
+.comp-tbl th{padding:7px 12px;text-align:left;font-size:10px;font-weight:600;color:#a8d898;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(168,216,152,.2);background:#1a3d1a;white-space:nowrap;font-family:var(--mono);position:sticky;top:0;z-index:2}
 .comp-tbl td{padding:7px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle;white-space:nowrap}
 .comp-tbl tr:last-child td{border-bottom:none}
 .comp-tbl tr:hover td{background:var(--green-light)}
@@ -513,6 +513,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     <div class="login-error" id="lerr">Usuário ou senha incorretos</div>
     <button class="login-btn" onclick="doLogin()">Entrar na Wiki TIC</button>
     <div class="login-hint">Esqueceu a senha? Fale com o administrador da TIC.</div>
+  </div>
+</div>
+
+
+<!-- MODAL EDITAR/ADICIONAR ATIVO -->
+<div class="modal-overlay" id="m-ativo" onclick="if(event.target===this)closeM('m-ativo')">
+  <div class="modal" style="max-width:700px;width:95vw">
+    <div class="mhead">
+      <div class="mhead-title" id="m-ativo-title">Editar Computador</div>
+      <button class="mclose" onclick="closeM('m-ativo')">&#x2715;</button>
+    </div>
+    <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px" id="m-ativo-body"></div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface2)">
+      <button class="btn-sec" onclick="closeM('m-ativo')">Cancelar</button>
+      <button class="btn-pri" onclick="saveAtivo()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRÉDIOS E DEPARTAMENTOS -->
+<div class="modal-overlay" id="m-pred" onclick="if(event.target===this)closeM('m-pred')">
+  <div class="modal" style="max-width:600px;width:95vw">
+    <div class="mhead">
+      <div class="mhead-title" id="m-pred-title">Gerenciar Prédios</div>
+      <button class="mclose" onclick="closeM('m-pred')">&#x2715;</button>
+    </div>
+    <div style="padding:16px" id="m-pred-body"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface2)">
+      <button class="btn-sec" onclick="closeM('m-pred')">Fechar</button>
+    </div>
   </div>
 </div>
 
@@ -692,7 +722,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
       </div>
       <div id="sb-sections" style="flex:1;overflow-y:auto;padding:8px 10px"></div>
       <div style="padding:8px 10px;border-top:1px solid rgba(255,255,255,.08)">
-        <div onclick="openCfg('sec-sistema')" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;margin-bottom:2px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">⚙️ <span>Configurações</span></div>
+        <div onclick="openPredios()" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;margin-bottom:2px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">🏢 <span>Prédios / Departamentos</span></div>
+      <div onclick="openCfg('sec-sistema')" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;margin-bottom:2px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">⚙️ <span>Configurações</span></div>
         <div onclick="doLogout()" style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">↩ <span>Sair</span></div>
       </div>
     </div>
@@ -714,7 +745,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
       </div>
       <div id="s-inv" style="display:none;flex:1;overflow:hidden;flex-direction:column">
         <div style="padding:14px;overflow-y:auto;flex:1">
-          <div style="font-size:16px;font-weight:500;margin-bottom:4px" id="inv-title">🖥️ Computadores</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="font-size:16px;font-weight:500" id="inv-title">🖥️ Computadores</div><button id="inv-add-btn" onclick="openAddAtivo(_invTipo,'','')" style="display:none;align-items:center;gap:5px;background:var(--green);border:none;color:#fff;padding:6px 14px;border-radius:var(--rs);font-size:12px;cursor:pointer;font-family:var(--font)">+ Adicionar</button></div>
           <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Clique em um prédio para expandir os departamentos</div>
           <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap" id="inv-tabs"></div>
           <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
@@ -730,6 +761,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
+
+
+
 
 
 
@@ -1118,6 +1154,12 @@ function renderInv(tipo,filterPred){
   if(ti)ti.innerHTML=tabs.map(function(t){return '<button class="inv-tab '+(t===_invTipo?'on':'')+'" onclick="renderInv(\''+t+'\')">'+labels[t]+'</button>';}).join('');
   var tl=document.getElementById('inv-title');
   if(tl)tl.textContent=(labels[_invTipo]||_invTipo)+' — '+TREE.stats[_invTipo]+' registros';
+  // Add button
+  var addBtn=document.getElementById('inv-add-btn');
+  if(addBtn){
+    addBtn.style.display='flex';
+    addBtn.onclick=function(){openAddAtivo(_invTipo,'','');};
+  }
   _buildInv(filterPred||'');
 }
 function filterInv(){_buildInv('');}
@@ -1193,9 +1235,9 @@ function _buildInv(openPred){
         predRows+='<span class="dept-name">'+esc(dept)+'</span><span class="dept-cnt">'+filtered.length+'</span><span class="dept-chev">▼</span></div>';
         predRows+='<div class="comp-list '+(autoOpen?'open':'')+'" id="'+deptId+'"><div style="overflow-x:auto;width:100%"><table class="comp-tbl" style="min-width:1400px"><thead><tr>';
         if(tipo==='comp'){
-          predRows+='<th>Nome</th><th>Sistema</th><th>Fabricante</th><th>Modelo</th><th>ServiceTag</th><th>Cód Serviço</th><th>Início Gar.</th><th>Fim Gar.</th><th>Tempo</th><th>Memória</th><th>Processador</th><th>Armazenamento</th><th>Monitor</th><th>Usuário</th>';
+          predRows+='<th>Nome</th><th>Sistema</th><th>Fabricante</th><th>Modelo</th><th>ServiceTag</th><th>Cód Serviço</th><th>Início Gar.</th><th>Fim Gar.</th><th>Tempo</th><th>Memória</th><th>Processador</th><th>Armazenamento</th><th>Monitor</th><th>Usuário</th><th style="text-align:center">Ações</th>';
         }else{
-          predRows+='<th>Nome</th><th>Sistema</th><th>Fabricante</th><th>Modelo</th><th>ServiceTag</th><th>Memória</th><th>Processador</th><th>Armazenamento</th><th>Usuário</th><th>Garantia</th>';
+          predRows+='<th>Nome</th><th>Sistema</th><th>Fabricante</th><th>Modelo</th><th>ServiceTag</th><th>Memória</th><th>Processador</th><th>Armazenamento</th><th>Usuário</th><th>Garantia</th><th style="text-align:center">Ações</th>';
         }
         predRows+='</tr></thead><tbody>';
         filtered.forEach(function(c){
@@ -1223,6 +1265,20 @@ function _buildInv(openPred){
             predRows+='<td style="font-size:11px">'+esc(c.usuario||'—')+'</td>';
             predRows+=_gBadge(gf);
           }
+          var _k=_regAtivo(tipo,c,pred,dept);
+          predRows+='<td style="white-space:nowrap;padding:6px 10px">'
+            +'<button data-k="'+_k+'" onclick="_editReg(this.getAttribute(String.fromCharCode(100,97,116,97,45,107)))" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #5a9e4a;background:#EAF3DE;color:#27500A;cursor:pointer;margin-right:3px">✏ Editar</button>'
+            +'<button data-k="'+_k+'" onclick="_dupReg(this.getAttribute(String.fromCharCode(100,97,116,97,45,107)))" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #85B7EB;background:#E6F1FB;color:#0C447C;cursor:pointer;margin-right:3px">⎘ Dup.</button>'
+            +'<button data-k="'+_k+'" onclick="_delReg(this.getAttribute(String.fromCharCode(100,97,116,97,45,107)))" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #F0997B;background:#FCEBEB;color:#791F1F;cursor:pointer">✕ Del.</button>'
+            +'</td>';
+          // Action buttons
+          var cid=c.id||'';
+          var cnome=esc(c.nome||'');
+          predRows+='<td style="text-align:center;white-space:nowrap">';
+          predRows+='<button onclick="openEditAtivo(\''+tipo+'\',\''+esc(pred)+'\',\''+esc(dept)+'\',\''+cid+'\')" style="background:var(--blue-bg);border:1px solid var(--blue-bdr);color:var(--blue);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;margin-right:3px">Editar</button>';
+          predRows+='<button onclick="dupAtivo(\''+tipo+'\',\''+esc(pred)+'\',\''+esc(dept)+'\',\''+cid+'\')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;margin-right:3px">Duplicar</button>';
+          predRows+='<button onclick="delAtivo(\''+tipo+'\',\''+esc(pred)+'\',\''+esc(dept)+'\',\''+cid+'\',\''+cnome+'\')" style="background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--red);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer">Excluir</button>';
+          predRows+='</td>';
           predRows+='</tr>';
         });
         predRows+='</tbody></table></div></div>';
@@ -2499,8 +2555,423 @@ function renderAtivos(){
   pag.innerHTML=ph;
 }
 
+// ── ATIVOS CRUD ──────────────────────────────────────────────────────
+var _editAtivoData=null, _editAtivoTipo=null;
+var _ativoReg={};
+function _regAtivo(tipo,item,pred,dept){
+  var key='r'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  _ativoReg[key]={tipo:tipo,item:item,pred:pred,dept:dept};
+  return key;
+}
+
+
+function _editReg(k){var r=_ativoReg[k];if(r)editAtivo(r.tipo,r.item);}
+function _dupReg(k){var r=_ativoReg[k];if(r)dupAtivo(r.tipo,r.item);}
+function _delReg(k){var r=_ativoReg[k];if(r)delAtivo(r.tipo,r.item,r.pred,r.dept);}
+function closeAtivoModal(){var m=document.getElementById('m-ativo');if(m)m.remove();}
+
+function addAtivo(tipo,pred,dept){
+  _editAtivoData=null;_editAtivoTipo=tipo;
+  var predObj=null,deptObj=null;
+  for(var i=0;i<TREE.predios.length;i++)if(TREE.predios[i].nome===pred){predObj=TREE.predios[i];break;}
+  for(var i=0;i<TREE.deptos.length;i++)if(TREE.deptos[i].nome===dept){deptObj=TREE.deptos[i];break;}
+  _openAtivoModal(tipo,{predio_id:predObj?predObj.id:null,departamento_id:deptObj?deptObj.id:null,predio_nome:pred,dept_nome:dept},'Adicionar '+_tipoLabel(tipo));
+}
+
+function editAtivo(tipo,cJson){
+  var c=typeof cJson==='string'?JSON.parse(cJson):cJson;
+  _editAtivoData=c;_editAtivoTipo=tipo;
+  _openAtivoModal(tipo,c,'Editar '+_tipoLabel(tipo));
+}
+
+function dupAtivo(tipo,cJson){
+  var c=typeof cJson==='string'?JSON.parse(cJson):cJson;
+  _editAtivoData=null;_editAtivoTipo=tipo;
+  var dup=JSON.parse(JSON.stringify(c));
+  dup.nome=(dup.nome||'')+'_copia';delete dup.id;
+  _openAtivoModal(tipo,dup,'Duplicar '+_tipoLabel(tipo));
+}
+
+function delAtivo(tipo,cJson,pred,dept){
+  var c=typeof cJson==='string'?JSON.parse(cJson):cJson;
+  if(!confirm('Excluir '+c.nome+'? Esta acao nao pode ser desfeita.'))return;
+  var tree=TREE[tipo];
+  if(tree&&tree[pred]&&tree[pred][dept]){
+    tree[pred][dept]=tree[pred][dept].filter(function(x){return x.id!==c.id&&x.nome!==c.nome;});
+    TREE.stats[tipo]=Math.max(0,(TREE.stats[tipo]||1)-1);
+    _buildInv('');renderSidebarNew();
+  }
+}
+
+function _tipoLabel(t){return {comp:'Computador',note:'Notebook',imp:'Impressora',ramal:'Ramal'}[t]||t;}
+
+function _mf(lbl,id,val,type){
+  return '<div><label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px">'+lbl+'</label>'
+    +'<input id="av-'+id+'" type="'+(type||'text')+'" value="'+esc(String(val||''))+'" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px;color:var(--text);font-size:12px;outline:none;box-sizing:border-box"></div>';
+}
+function _mf2(lbl,id,val){
+  return '<div style="grid-column:1/-1"><label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px">'+lbl+'</label>'
+    +'<textarea id="av-'+id+'" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px;color:var(--text);font-size:12px;outline:none;height:60px;resize:vertical;box-sizing:border-box">'+esc(String(val||''))+'</textarea></div>';
+}
+
+function updateAtivoDeptos(){
+  var predId=document.getElementById('av-predio').value;
+  var sel=document.getElementById('av-depto');if(!sel)return;
+  var opts='<option value="">Selecione...</option>';
+  TREE.deptos.filter(function(d){return !predId||String(d.predio_id)===String(predId);}).forEach(function(d){
+    opts+='<option value="'+d.id+'">'+d.nome+'</option>';
+  });
+  sel.innerHTML=opts;
+}
+
+function _getField(id){var el=document.getElementById('av-'+id);return el?el.value.trim():'';}
+
+function _openAtivoModal(tipo,data,title){
+  closeAtivoModal();
+  var isComp=tipo==='comp',isNote=tipo==='note',isImp=tipo==='imp';
+  var preds='<option value="">Selecione...</option>';
+  TREE.predios.forEach(function(p){preds+='<option value="'+p.id+'"'+(String(data.predio_id)===String(p.id)?' selected':'')+'>'+p.nome.replace('PRÉDIO - ','')+'</option>';});
+  var depts='<option value="">Selecione...</option>';
+  TREE.deptos.filter(function(d){return !data.predio_id||String(d.predio_id)===String(data.predio_id);}).forEach(function(d){
+    depts+='<option value="'+d.id+'"'+(String(data.departamento_id)===String(d.id)?' selected':'')+'>'+d.nome+'</option>';
+  });
+
+  var fields='';
+  if(isComp||isNote){
+    fields+=_mf('Nome','nome',data.nome)+_mf('Sistema','sistema',data.sistema)+
+      _mf('Fabricante','fabricante',data.fabricante)+_mf('Modelo','modelo',data.modelo)+
+      _mf('ServiceTag','servicetag',data.servicetag)+_mf('Código Serviço','codigo_servico',data.codigo_servico)+
+      _mf('Início Garantia','garantia',data.garantia,'date')+_mf('Fim Garantia','garantia_fim',data.garantia_fim,'date')+
+      _mf('Memória','memoria',data.memoria)+_mf('Processador','processador',data.processador)+
+      _mf('Armazenamento','armazenamento',data.armazenamento);
+    if(isComp)fields+=_mf('Monitor','monitor',data.monitor);
+    fields+=_mf('Usuário','usuario',data.usuario)+_mf2('Observação','observacao',data.observacao);
+  }else if(isImp){
+    fields+=_mf('Nome','nome',data.nome)+_mf('Fabricante','fabricante',data.fabricante)+
+      _mf('Modelo','modelo',data.modelo)+_mf('IP','ip',data.ip)+
+      _mf('MAC','mac',data.mac)+_mf('Conexão','conexao',data.conexao)+
+      _mf('Tecnologia','tecnologia',data.tecnologia)+_mf2('Observação','observacao',data.observacao);
+  }else{
+    fields+=_mf('Nome','nome',data.nome)+_mf('E-mail','email',data.email)+_mf('Ramal','numero',data.numero);
+  }
+
+  var sel='<div style="display:flex;gap:0;flex-direction:column"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">'
+    +'<div><label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px">Prédio</label>'
+    +'<select id="av-predio" onchange="updateAtivoDeptos()" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px;color:var(--text);font-size:12px;outline:none">'+preds+'</select></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px">Departamento</label>'
+    +'<select id="av-depto" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px;color:var(--text);font-size:12px;outline:none">'+depts+'</select></div>'
+    +'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+fields+'</div></div>';
+
+  var modal=document.createElement('div');
+  modal.id='m-ativo';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML='<div style="background:var(--surface);border-radius:var(--r);width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--green);border-radius:var(--r) var(--r) 0 0">'
+    +'<div style="font-size:14px;font-weight:500;color:#fff">'+title+'</div>'
+    +'<button id="btn-close-ativo" style="background:rgba(255,255,255,.2);border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;color:#fff">✕</button></div>'
+    +'<div style="padding:18px">'+sel+'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--border)">'
+    +'<button id="btn-cancel-ativo" style="padding:8px 18px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:12px">Cancelar</button>'
+    +'<button onclick="saveAtivo()" style="padding:8px 18px;border-radius:var(--rs);border:none;background:var(--green);color:#fff;cursor:pointer;font-size:12px;font-weight:500">💾 Salvar alterações</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+  document.getElementById('btn-close-ativo').onclick=closeAtivoModal;
+  document.getElementById('btn-cancel-ativo').onclick=closeAtivoModal;
+}
+
+function saveAtivo(){
+  var tipo=_editAtivoTipo;
+  var predId=document.getElementById('av-predio').value;
+  var deptId=document.getElementById('av-depto').value;
+  var predObj=null,deptObj=null;
+  for(var i=0;i<TREE.predios.length;i++)if(String(TREE.predios[i].id)===String(predId)){predObj=TREE.predios[i];break;}
+  for(var i=0;i<TREE.deptos.length;i++)if(String(TREE.deptos[i].id)===String(deptId)){deptObj=TREE.deptos[i];break;}
+  var pred=predObj?predObj.nome:'Sem Prédio';
+  var dept=deptObj?deptObj.nome:'Sem Departamento';
+  var newItem={id:_editAtivoData?_editAtivoData.id:('new_'+Date.now()),predio_id:predId,departamento_id:deptId};
+  if(tipo==='comp'||tipo==='note'){
+    Object.assign(newItem,{nome:_getField('nome'),sistema:_getField('sistema'),fabricante:_getField('fabricante'),
+      modelo:_getField('modelo'),servicetag:_getField('servicetag'),codigo_servico:_getField('codigo_servico'),
+      garantia:_getField('garantia'),garantia_fim:_getField('garantia_fim'),memoria:_getField('memoria'),
+      processador:_getField('processador'),armazenamento:_getField('armazenamento'),
+      monitor:tipo==='comp'?_getField('monitor'):'',usuario:_getField('usuario'),observacao:_getField('observacao')});
+  }else if(tipo==='imp'){
+    Object.assign(newItem,{nome:_getField('nome'),fabricante:_getField('fabricante'),modelo:_getField('modelo'),
+      ip:_getField('ip'),mac:_getField('mac'),conexao:_getField('conexao'),tecnologia:_getField('tecnologia'),observacao:_getField('observacao')});
+  }else{
+    Object.assign(newItem,{nome:_getField('nome'),email:_getField('email'),numero:_getField('numero')});
+  }
+  if(!newItem.nome){alert('Nome é obrigatório!');return;}
+  var tree=TREE[tipo];
+  if(_editAtivoData){
+    for(var p in tree)for(var d in tree[p])for(var i=0;i<tree[p][d].length;i++){
+      if(tree[p][d][i].id===_editAtivoData.id||tree[p][d][i].nome===_editAtivoData.nome){tree[p][d].splice(i,1);break;}
+    }
+  } else {
+    TREE.stats[tipo]=(TREE.stats[tipo]||0)+1;
+  }
+  if(!tree[pred])tree[pred]={};
+  if(!tree[pred][dept])tree[pred][dept]=[];
+  tree[pred][dept].push(newItem);
+  closeAtivoModal();
+  renderSidebarNew();_buildInv(pred);
+}
+
+// ── ATIVO CRUD ────────────────────────────────────────────────
+var _editAtivoTipo=null, _editAtivoId=null, _editAtivoPred=null, _editAtivoDept=null;
+
+var ATIVO_FIELDS = {
+  comp: [
+    {id:'nome',label:'Nome',req:true},{id:'sistema',label:'Sistema'},
+    {id:'fabricante',label:'Fabricante'},{id:'modelo',label:'Modelo'},
+    {id:'servicetag',label:'ServiceTag'},{id:'codigo_servico',label:'Cód Serviço'},
+    {id:'garantia',label:'Início Garantia',type:'date'},{id:'garantia_fim',label:'Fim Garantia',type:'date'},
+    {id:'memoria',label:'Memória'},{id:'processador',label:'Processador'},
+    {id:'armazenamento',label:'Armazenamento'},{id:'monitor',label:'Monitor'},
+    {id:'usuario',label:'Usuário'},{id:'observacao',label:'Observação',full:true,type:'textarea'}
+  ],
+  note: [
+    {id:'nome',label:'Nome',req:true},{id:'sistema',label:'Sistema'},
+    {id:'fabricante',label:'Fabricante'},{id:'modelo',label:'Modelo'},
+    {id:'servicetag',label:'ServiceTag'},{id:'garantia',label:'Início Garantia',type:'date'},
+    {id:'garantia_fim',label:'Fim Garantia',type:'date'},{id:'memoria',label:'Memória'},
+    {id:'processador',label:'Processador'},{id:'armazenamento',label:'Armazenamento'},
+    {id:'usuario',label:'Usuário'},{id:'observacao',label:'Observação',full:true,type:'textarea'}
+  ],
+  imp: [
+    {id:'nome',label:'Nome',req:true},{id:'fabricante',label:'Fabricante'},
+    {id:'modelo',label:'Modelo'},{id:'ip',label:'IP'},
+    {id:'mac',label:'MAC'},{id:'conexao',label:'Conexão (Rede/Wi-Fi/USB)'},
+    {id:'tecnologia',label:'Tecnologia'},{id:'observacao',label:'Observação',full:true,type:'textarea'}
+  ]
+};
+
+function openAddAtivo(tipo, pred, dept){
+  _editAtivoTipo=tipo; _editAtivoId=null; _editAtivoPred=pred; _editAtivoDept=dept;
+  var labels={comp:'Computador',note:'Notebook',imp:'Impressora'};
+  document.getElementById('m-ativo-title').textContent='+ Adicionar '+labels[tipo];
+  _renderAtivoForm({});
+  showM('m-ativo');
+}
+
+function openEditAtivo(tipo, pred, dept, id){
+  _editAtivoTipo=tipo; _editAtivoId=id; _editAtivoPred=pred; _editAtivoDept=dept;
+  var labels={comp:'Computador',note:'Notebook',imp:'Impressora'};
+  document.getElementById('m-ativo-title').textContent='Editar '+labels[tipo];
+  // Find item in TREE
+  var item=null;
+  var tree=TREE[tipo];
+  if(tree&&tree[pred]&&tree[pred][dept]){
+    var arr=tree[pred][dept];
+    for(var i=0;i<arr.length;i++)if(arr[i].id===id){item=arr[i];break;}
+  }
+  _renderAtivoForm(item||{});
+  showM('m-ativo');
+}
+
+function _renderAtivoForm(data){
+  var fields=ATIVO_FIELDS[_editAtivoTipo]||[];
+  var h='';
+  // Add predio/dept selects at top
+  h+='<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px">';
+  h+='<div><label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">PRÉDIO</label><select id="af-pred-sel" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 10px;color:var(--text);font-size:12px;outline:none">';
+  TREE.predios.forEach(function(p){h+='<option value="'+esc(p.nome)+'"'+(p.nome===_editAtivoPred?' selected':'')+'>'+esc(p.nome.replace('PRÉDIO - ',''))+'</option>';});
+  h+='</select></div>';
+  h+='<div><label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">DEPARTAMENTO</label><select id="af-dept-sel" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 10px;color:var(--text);font-size:12px;outline:none">';
+  TREE.deptos.forEach(function(d){
+    var pnome=_editAtivoPred||'';
+    var pmatch=TREE.predios.find(function(p){return p.nome===pnome;});
+    if(!pmatch||(d.predio_id===pmatch.id)){
+      h+='<option value="'+esc(d.nome)+'"'+(d.nome===_editAtivoDept?' selected':'')+'>'+esc(d.nome)+'</option>';
+    }
+  });
+  h+='</select></div></div>';
+  
+  fields.forEach(function(f){
+    var val=data[f.id]||'';
+    var span=f.full?'grid-column:1/-1':'';
+    h+='<div style="'+span+'">';
+    h+='<label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">'+f.label+(f.req?' *':'')+'</label>';
+    if(f.type==='textarea'){
+      h+='<textarea id="af-'+f.id+'" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 10px;color:var(--text);font-size:12px;outline:none;resize:vertical;font-family:var(--font)">'+esc(val)+'</textarea>';
+    } else {
+      h+='<input id="af-'+f.id+'" type="'+(f.type||'text')+'" value="'+esc(val)+'" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 10px;color:var(--text);font-size:12px;outline:none">';
+    }
+    h+='</div>';
+  });
+  document.getElementById('m-ativo-body').innerHTML=h;
+}
+
+function saveAtivo(){
+  var tipo=_editAtivoTipo;
+  var fields=ATIVO_FIELDS[tipo]||[];
+  var pred=document.getElementById('af-pred-sel').value;
+  var dept=document.getElementById('af-dept-sel').value;
+  var data={id:_editAtivoId||('local-'+Date.now())};
+  
+  // Validate required
+  var nome=document.getElementById('af-nome');
+  if(!nome||!nome.value.trim()){alert('Nome é obrigatório');return;}
+  
+  fields.forEach(function(f){
+    var el=document.getElementById('af-'+f.id);
+    if(el)data[f.id]=el.value.trim();
+  });
+  
+  // Update TREE
+  if(!TREE[tipo])TREE[tipo]={};
+  if(!TREE[tipo][pred])TREE[tipo][pred]={};
+  if(!TREE[tipo][pred][dept])TREE[tipo][pred][dept]=[];
+  
+  if(_editAtivoId){
+    // Update existing
+    var arr=TREE[tipo][pred][dept];
+    var found=false;
+    for(var i=0;i<arr.length;i++){
+      if(arr[i].id===_editAtivoId){arr[i]=data;found=true;break;}
+    }
+    // If moved to different pred/dept
+    if(!found){
+      // Remove from old location
+      if(TREE[tipo][_editAtivoPred]&&TREE[tipo][_editAtivoPred][_editAtivoDept]){
+        TREE[tipo][_editAtivoPred][_editAtivoDept]=TREE[tipo][_editAtivoPred][_editAtivoDept].filter(function(x){return x.id!==_editAtivoId;});
+      }
+      TREE[tipo][pred][dept].push(data);
+    }
+  } else {
+    TREE[tipo][pred][dept].push(data);
+    TREE.stats[tipo]=(TREE.stats[tipo]||0)+1;
+  }
+  
+  closeM('m-ativo');
+  renderInv(tipo, pred);
+  renderSidebarNew();
+}
+
+function dupAtivo(tipo, pred, dept, id){
+  var arr=TREE[tipo][pred][dept];
+  for(var i=0;i<arr.length;i++){
+    if(arr[i].id===id){
+      var copy=JSON.parse(JSON.stringify(arr[i]));
+      copy.id='local-'+Date.now();
+      copy.nome=copy.nome+' (cópia)';
+      arr.splice(i+1,0,copy);
+      TREE.stats[tipo]=(TREE.stats[tipo]||0)+1;
+      break;
+    }
+  }
+  renderInv(tipo,pred);
+  renderSidebarNew();
+}
+
+function delAtivo(tipo, pred, dept, id, nome){
+  if(!confirm('Excluir "'+nome+'"?'))return;
+  if(TREE[tipo]&&TREE[tipo][pred]&&TREE[tipo][pred][dept]){
+    TREE[tipo][pred][dept]=TREE[tipo][pred][dept].filter(function(x){return x.id!==id;});
+    TREE.stats[tipo]=Math.max(0,(TREE.stats[tipo]||1)-1);
+  }
+  renderInv(tipo,pred);
+  renderSidebarNew();
+}
+
+// ── PRÉDIOS & DEPARTAMENTOS CRUD ─────────────────────────────
+function openPredios(){
+  document.getElementById('m-pred-title').textContent='Gerenciar Prédios e Departamentos';
+  _renderPrediosList();
+  showM('m-pred');
+}
+
+function _renderPrediosList(){
+  var h='';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+  h+='<div style="font-size:13px;font-weight:500">Prédios ('+TREE.predios.length+')</div>';
+  h+='<button class="btn-pri" style="font-size:11px;padding:4px 10px" onclick="_addPredio()">+ Novo Prédio</button></div>';
+  h+='<div style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto">';
+  TREE.predios.forEach(function(p){
+    var depts=TREE.deptos.filter(function(d){return d.predio_id===p.id;});
+    h+='<div style="border:1px solid var(--border);border-radius:var(--rs);overflow:hidden">';
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--green);color:#fff">';
+    h+='<span style="flex:1;font-size:12px;font-weight:500">'+esc(p.nome.replace('PRÉDIO - ',''))+'</span>';
+    h+='<span style="font-size:10px;opacity:.7">'+depts.length+' dept.</span>';
+    h+='<button data-pid='+p.id+' class="pred-edit-btn" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 7px;border-radius:4px;font-size:10px;cursor:pointer">Editar</button>';
+    h+='<button data-pid='+p.id+' class="pred-dept-btn" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 7px;border-radius:4px;font-size:10px;cursor:pointer">+ Dept</button>';
+    h+='</div>';
+    if(depts.length){
+      h+='<div style="padding:6px 12px;background:var(--surface2)">';
+      depts.forEach(function(d){
+        h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:0.5px solid var(--border);font-size:11px">';
+        h+='<span style="flex:1">'+esc(d.nome)+'</span>';
+        h+='<button data-did='+d.id+' data-pid='+p.id+' class="dept-edit-btn" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:1px 6px;border-radius:4px;font-size:10px;cursor:pointer">Editar</button>';
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+  document.getElementById('m-pred-body').innerHTML=h;
+  // Attach events
+  document.querySelectorAll('.pred-edit-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var pid=parseInt(this.getAttribute('data-pid'));
+      var pred=TREE.predios.filter(function(p){return p.id===pid;})[0];
+      if(pred)_editPredio(pred.id,pred.nome);
+    });
+  });
+  document.querySelectorAll('.pred-dept-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var pid=parseInt(this.getAttribute('data-pid'));
+      var pred=TREE.predios.filter(function(p){return p.id===pid;})[0];
+      if(pred)_addDepto(pred.id,pred.nome);
+    });
+  });
+  document.querySelectorAll('.dept-edit-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var did=parseInt(this.getAttribute('data-did'));
+      var pid=parseInt(this.getAttribute('data-pid'));
+      var dept=TREE.deptos.filter(function(d){return d.id===did;})[0];
+      if(dept)_editDepto(dept.id,dept.nome,pid);
+    });
+  });
+}
+
+function _addPredio(){
+  var nome=prompt('Nome do prédio (ex: PRÉDIO - NOVO):');
+  if(!nome)return;
+  var newId=Math.max.apply(null,TREE.predios.map(function(p){return p.id;}))+1;
+  TREE.predios.push({id:newId,nome:nome.toUpperCase()});
+  _renderPrediosList();
+}
+
+function _editPredio(id,nome){
+  var novo=prompt('Novo nome:',nome);
+  if(!novo)return;
+  for(var i=0;i<TREE.predios.length;i++)if(TREE.predios[i].id===id){TREE.predios[i].nome=novo.toUpperCase();break;}
+  _renderPrediosList();
+}
+
+function _addDepto(predioId,predioNome){
+  var nome=prompt('Nome do departamento:');
+  if(!nome)return;
+  var newId=Math.max.apply(null,TREE.deptos.map(function(d){return d.id;}))+1;
+  TREE.deptos.push({id:newId,nome:nome,predio_id:predioId});
+  _renderPrediosList();
+}
+
+function _editDepto(id,nome,predioId){
+  var novo=prompt('Novo nome:',nome);
+  if(!novo)return;
+  for(var i=0;i<TREE.deptos.length;i++)if(TREE.deptos[i].id===id){TREE.deptos[i].nome=novo;break;}
+  _renderPrediosList();
+}
+
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+
+
 
 
 
