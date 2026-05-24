@@ -771,6 +771,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 
 
+
+
+
+
 var SB_URL = 'https://npuzwovluxbghjqiulwh.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdXp3b3ZsdXhiZ2hqcWl1bHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0ODkwNzgsImV4cCI6MjA5NTA2NTA3OH0.kaBISlm06OdwNdEvnuQhY6ouT4sCrFDogNa19JUBtRg';
 
@@ -1023,14 +1027,13 @@ var chkItems=[];
 
 var SB_SECTIONS=[
   {id:'dash',type:'link',icon:'📊',label:'Dashboard'},
-  {id:'proc',type:'link',icon:'📋',label:'Todos os processos',cnt:true},
   {id:'ativos',type:'card',icon:'🖥️',label:'Inventário',stats:[
     {key:'comp',label:'Computadores'},
     {key:'note',label:'Notebooks'},
     {key:'imp',label:'Impressoras'},
     {key:'vencidas',label:'Gar. vencidas',cls:'red'}
   ]},
-  {id:'processos',type:'cats',icon:'⚙️',label:'Processos N1'},
+  {id:'processos',type:'proc-card',icon:'📋',label:'Processos N1'},
   {id:'estoque',type:'card',icon:'📦',label:'Em estoque',stats:[
     {val:8,label:'Memorias RAM'},
     {val:5,label:'SSDs e HDs'},
@@ -1069,7 +1072,22 @@ function renderSidebarNew(){
         h+='<div class="sb-stat '+(st.cls||'')+'"><div class="sb-stat-v">'+val+'</div><div class="sb-stat-l">'+st.label+'</div></div>';
       });
       h+='</div></div>';
-    }else if(sec.type==='cats'){
+    }else if(sec.type==='proc-card'){
+      var sid=sec.id;
+      var totalProcs=PROCS.length;
+      var totalCats=CATS.length;
+      h+='<div class="sb-card '+(_activeSec===sid?'on':'')+'" onclick="navSec(\''+sid+'\')"><div class="sb-card-head"><div class="sb-card-title"><span>'+sec.icon+'</span>'+sec.label+'</div><span class="sb-card-arr">›</span></div><div class="sb-card-grid">';
+      var shown=0;
+      for(var ci=0;ci<CATS.length&&shown<3;ci++){
+        var cat2=CATS[ci];var cnt2=0;
+        for(var pi=0;pi<PROCS.length;pi++)if(PROCS[pi].cat===cat2.id)cnt2++;
+        var sl=cat2.label.length>13?cat2.label.substr(0,12)+'…':cat2.label;
+        h+='<div class="sb-stat"><div class="sb-stat-v">'+cnt2+'</div><div class="sb-stat-l">'+sl+'</div></div>';
+        shown++;
+      }
+      h+='<div class="sb-stat blue"><div class="sb-stat-v">'+totalProcs+'</div><div class="sb-stat-l">Total processos</div></div>';
+      h+='</div></div>';
+}else if(sec.type==='cats'){
       h+='<div style="display:flex;flex-direction:column;gap:2px">';
       for(var i=0;i<CATS.length;i++){
         var cat=CATS[i];var cnt=0;
@@ -1097,7 +1115,7 @@ function navSec(id){
   else if(id==='ativos'){var el=document.getElementById('s-inv');if(el)el.style.display='flex';renderInv('comp');}
   else if(id==='estoque'){var el=document.getElementById('content');if(el)el.style.display='block';if(STOCK&&STOCK.length)renderStock(STOCK[0].id);}
   else if(id==='listas'){var el=document.getElementById('content');if(el)el.style.display='block';if(LISTS&&LISTS.length)renderList(LISTS[0].id);}
-  else if(id==='proc'){var el=document.getElementById('content');if(el)el.style.display='block';activeCat='todos';render();}
+  else if(id==='proc'||id==='processos'){var el=document.getElementById('content');if(el)el.style.display='block';activeCat='todos';render();}
   renderSidebarNew();
   var tb=document.querySelector('.tb-title');
   var titles={dash:'Dashboard — Visão geral',ativos:'Ativos de rede',estoque:'Estoque',listas:'Listas de compras',proc:'Processos N1'};
@@ -1720,14 +1738,29 @@ function openProcM(id){
   document.getElementById('mp-name').value=p?p.label:'';
   document.getElementById('mp-icon').value=p?p.icon:'ti-file';
   document.getElementById('mp-steps').value=p?(p.branches[0]?p.branches[0].steps.map(function(s,i){return (i+1)+'. '+s.title;}).join('\n'):''):'';
-  updIcon();showM('m-proc');
+  updIcon();if(typeof renderStepEditor==='function'){var ps=(editProcId&&findById(PROCS,editProcId)&&findById(PROCS,editProcId).branches[0].steps)||[{title:'',desc:'',checks:[],warn:'',info:''}];setTimeout(function(){renderStepEditor(ps);},50);}
+  showM('m-proc');
 }
+function confirmDelProc(id){
+  var proc=findById(PROCS,id);if(!proc)return;
+  if(!confirm('Excluir o processo "'+proc.label+'"?'))return;
+  PROCS=PROCS.filter(function(p){return p.id!==id;});
+  sbDelete('processos',id);
+  renderSidebarNew();render();
+}
+
 function saveProc(){
   var name=document.getElementById('mp-name').value.trim();if(!name)return;
   var cat=document.getElementById('mp-cat').value;
   var icon=document.getElementById('mp-icon').value.trim()||'ti-file';
-  var raw=document.getElementById('mp-steps').value.trim();
-  var steps=raw?raw.split('\n').filter(function(l){return l.trim();}).map(function(l){return {title:l.replace(/^\d+[.)]\s*/,'').trim()};}):[{title:'Passo 1'}];
+  // Collect steps from individual inputs
+  var steps=[];
+  var stepEls=document.querySelectorAll('.mp-step-input');
+  stepEls.forEach(function(el){
+    var t=el.value.trim();
+    if(t)steps.push({title:t,desc:'',checks:[],warn:'',info:''});
+  });
+  if(!steps.length)steps=[{title:'Passo 1',desc:'',checks:[],warn:'',info:''}];
   if(editProcId){
     var p=findById(PROCS,editProcId);
     if(p){p.label=name;p.cat=cat;p.icon=icon;p.branches[0].steps=steps;syncProc(p,false);}
@@ -1735,7 +1768,7 @@ function saveProc(){
     var np={id:'p'+Date.now(),cat:cat,icon:icon,label:name,branches:[{label:'Padrao',steps:steps}]};
     PROCS.push(np);openCats[cat]=true;syncProc(np,true);
   }
-  closeM('m-proc');renderSidebar();render();
+  closeM('m-proc');renderSidebarNew();render();
 }
 function dupProc(id){
   var p=findById(PROCS,id);if(!p)return;
@@ -2965,8 +2998,78 @@ function _editDepto(id,nome,predioId){
   _renderPrediosList();
 }
 
+function renderStepEditor(steps){
+  var c=document.getElementById('mp-steps-container');
+  if(!c)return;
+  var h='';
+  steps.forEach(function(step,i){
+    h+='<div class="mp-step-row" style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">';
+    h+='<div style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:6px">'+(i+1)+'</div>';
+    h+='<textarea class="mp-step-input" rows="2" placeholder="Descreva o passo '+(i+1)+'..." style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:7px 10px;color:var(--text);font-size:12px;outline:none;resize:vertical;font-family:var(--font)">'+esc(step.title||'')+'</textarea>';
+    h+='<button onclick="removeStep('+i+')" style="background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--red);border-radius:5px;padding:3px 7px;font-size:12px;cursor:pointer;margin-top:4px;flex-shrink:0">✕</button>';
+    h+='</div>';
+  });
+  c.innerHTML=h;
+}
+
+function addStep(){
+  var inputs=document.querySelectorAll('.mp-step-input');
+  var steps=[];
+  inputs.forEach(function(el){steps.push({title:el.value.trim(),desc:'',checks:[],warn:'',info:''});});
+  steps.push({title:'',desc:'',checks:[],warn:'',info:''});
+  renderStepEditor(steps);
+  // Focus last
+  var all=document.querySelectorAll('.mp-step-input');
+  if(all.length)all[all.length-1].focus();
+}
+
+function removeStep(idx){
+  var inputs=document.querySelectorAll('.mp-step-input');
+  var steps=[];
+  inputs.forEach(function(el){steps.push({title:el.value.trim(),desc:'',checks:[],warn:'',info:''});});
+  if(steps.length<=1)return;
+  steps.splice(idx,1);
+  renderStepEditor(steps);
+}
+
+// Override openProcM to use new step editor
+var _origOpenProcM = typeof openProcM==='function'?openProcM:null;
+function openProcM(catId){
+  editProcId=null;
+  var el=document.getElementById('mp-name');if(el)el.value='';
+  var ei=document.getElementById('mp-icon');if(ei)ei.value='ti-file';
+  var ec=document.getElementById('mp-cat');
+  if(ec){
+    var h='';
+    CATS.forEach(function(c){h+='<option value="'+c.id+'"'+(c.id===catId?' selected':'')+'>'+c.label+'</option>';});
+    ec.innerHTML=h;
+  }
+  renderStepEditor([{title:'',desc:'',checks:[],warn:'',info:''}]);
+  showM('m-proc');
+}
+
+function openEditProcEnhanced(procId){
+  var proc=findById(PROCS,procId);if(!proc)return;
+  editProcId=procId;
+  var el=document.getElementById('mp-name');if(el)el.value=proc.label;
+  var ei=document.getElementById('mp-icon');if(ei)ei.value=proc.icon||'ti-file';
+  var ec=document.getElementById('mp-cat');
+  if(ec){
+    var h='';
+    CATS.forEach(function(c){h+='<option value="'+c.id+'"'+(c.id===proc.cat?' selected':'')+'>'+c.label+'</option>';});
+    ec.innerHTML=h;
+  }
+  var steps=(proc.branches&&proc.branches[0]&&proc.branches[0].steps)||[{title:'Passo 1',desc:'',checks:[],warn:'',info:''}];
+  renderStepEditor(steps);
+  showM('m-proc');
+}
+
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+
 
 
 
