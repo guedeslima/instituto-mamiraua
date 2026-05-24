@@ -588,7 +588,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     <div class="mbody">
       <div class="grid2">
         <div class="mf" style="grid-column:1/-1"><label>Nome do processo <span class="req">*</span></label><input type="text" id="mp-name" placeholder="Ex: Criar usuário no AD"></div>
-        <div class="mf"><label>Categoria <span class="req">*</span></label><select id="mp-cat"></select></div>
+        <div class="mf" id="mp-cat-row" style="display:none"><label>Categoria</label><select id="mp-cat"></select></div>
         <div class="mf"><label>Ícone</label><input type="text" id="mp-icon" placeholder="ti-file" oninput="updIcon()"><div class="icon-prev" id="icon-prev"><i class="ti ti-file" id="icon-prev-i" aria-hidden="true"></i><span id="icon-prev-t">ti-file</span></div></div>
       </div>
       <div class="mf"><label>Descrição curta</label><input type="text" id="mp-desc" placeholder="Uma linha sobre o processo"></div>
@@ -799,6 +799,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
 
 
 
@@ -2876,27 +2878,30 @@ function openProcM(catId){
   editProcId=null;
   var el=document.getElementById('mp-name');if(el)el.value='';
   var ei=document.getElementById('mp-icon');if(ei)ei.value='ti-file';
-  var ec=document.getElementById('mp-cat');
-  if(ec){
-    var h='';
-    CATS.forEach(function(c){h+='<option value="'+c.id+'"'+(c.id===catId?' selected':'')+'>'+c.label+'</option>';});
-    ec.innerHTML=h;
-  }
+  var mhTitle=document.getElementById('mh-proc-t');
+  if(mhTitle)mhTitle.textContent='Novo processo';
+  // Hide category field
+  var catRow=document.getElementById('mp-cat-row');
+  if(catRow)catRow.style.display='none';
   renderStepEditor([{title:'',desc:'',checks:[],warn:'',info:''}]);
   showM('m-proc');
 }
-
 function openEditProcEnhanced(procId){
   var proc=findById(PROCS,procId);if(!proc)return;
   editProcId=procId;
   var el=document.getElementById('mp-name');if(el)el.value=proc.label;
   var ei=document.getElementById('mp-icon');if(ei)ei.value=proc.icon||'ti-file';
+  // Show category field when editing
+  var catRow=document.getElementById('mp-cat-row');
+  if(catRow)catRow.style.display='block';
   var ec=document.getElementById('mp-cat');
   if(ec){
     var h='';
     CATS.forEach(function(c){h+='<option value="'+c.id+'"'+(c.id===proc.cat?' selected':'')+'>'+c.label+'</option>';});
     ec.innerHTML=h;
   }
+  var mhTitle=document.getElementById('mh-proc-t');
+  if(mhTitle)mhTitle.textContent='Editar processo';
   var steps=(proc.branches&&proc.branches[0]&&proc.branches[0].steps)||[{title:'Passo 1',desc:'',checks:[],warn:'',info:''}];
   renderStepEditor(steps);
   showM('m-proc');
@@ -3031,8 +3036,13 @@ function saveProc(){
   if(!name || !name.value.trim()) return;
   var cat = document.getElementById('mp-cat');
   var icon = document.getElementById('mp-icon');
-  var catVal = cat ? cat.value : (CATS[0] ? CATS[0].id : '');
   var iconVal = icon ? (icon.value.trim() || 'ti-file') : 'ti-file';
+  // Use selected cat, or first cat, or create 'Processos Gerais'
+  var catVal = (cat && cat.value && cat.value!=='__new__') ? cat.value : (CATS[0] ? CATS[0].id : '');
+  if(!catVal){
+    var gc={id:'c-geral-'+Date.now(),label:'Processos Gerais',icon:'ti-folder'};
+    CATS.push(gc); syncCat(gc,true); catVal=gc.id;
+  }
 
   // Collect steps from individual inputs
   var steps = [];
@@ -3103,8 +3113,6 @@ function quickAddStep(procId, branchIdx){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-
 
 
 
