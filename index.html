@@ -755,12 +755,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           <div id="inv-body"></div>
         </div>
       </div>
-      <div class="content" id="content" style="display:none;flex:1;overflow-y:auto;padding:16px"></div>
+      <div style="display:none;flex:1;flex-direction:column;overflow:hidden" id="content-wrap">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0">
+        <button id="render-add-proc" onclick="openProcM(null)" style="display:none;align-items:center;gap:5px;background:var(--green);border:none;color:#fff;padding:6px 14px;border-radius:var(--rs);font-size:12px;cursor:pointer;font-family:var(--font)">+ Novo processo</button>
+        <button id="render-add-cat" onclick="openCatM()" style="display:none;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);padding:6px 14px;border-radius:var(--rs);font-size:12px;cursor:pointer;font-family:var(--font)">+ Nova categoria</button>
+      </div>
+      <div class="content" id="content" style="flex:1;overflow-y:auto;padding:16px"></div>
+    </div>
     </div>
   </div>
 </div>
 
 <script>
+
+
+
+
+
 
 
 
@@ -1110,15 +1121,20 @@ function _sdDrop(e,to){e.preventDefault();_sdEnd();if(_di===null||_di===to)retur
 
 function navSec(id){
   _activeSec=id;activeCat=id;
-  ['s-dash','s-inv','content'].forEach(function(sid){var el=document.getElementById(sid);if(el)el.style.display='none';});
+  ['s-dash','s-inv','content','content-wrap'].forEach(function(sid){var el=document.getElementById(sid);if(el)el.style.display='none';});
   if(id==='dash'){var el=document.getElementById('s-dash');if(el)el.style.display='block';renderDashboard();}
   else if(id==='ativos'){var el=document.getElementById('s-inv');if(el)el.style.display='flex';renderInv('comp');}
   else if(id==='estoque'){var el=document.getElementById('content');if(el)el.style.display='block';if(STOCK&&STOCK.length)renderStock(STOCK[0].id);}
   else if(id==='listas'){var el=document.getElementById('content');if(el)el.style.display='block';if(LISTS&&LISTS.length)renderList(LISTS[0].id);}
-  else if(id==='proc'||id==='processos'){var el=document.getElementById('content');if(el)el.style.display='block';activeCat='todos';render();}
+  else if(id==='proc'||id==='processos'){
+    var el=document.getElementById('content');if(el)el.style.display='block';
+    activeCat='todos';
+    var tb2=document.getElementById('tb-title');if(tb2)tb2.textContent='Processos N1';
+    render();
+  }
   renderSidebarNew();
   var tb=document.querySelector('.tb-title');
-  var titles={dash:'Dashboard — Visão geral',ativos:'Ativos de rede',estoque:'Estoque',listas:'Listas de compras',proc:'Processos N1'};
+  var titles={dash:'Dashboard — Visão geral',ativos:'Ativos de rede',estoque:'Estoque',listas:'Listas de compras',proc:'Processos N1',processos:'Processos N1',processos:'Processos N1'};
   if(tb)tb.textContent=titles[id]||id;
 }
 
@@ -1597,7 +1613,13 @@ function render(){
   if(activeCat==='dashboard'){navSec('dash');return;}
   if(activeCat==='ativos'){navSec('ativos');return;}
   ['s-dash','s-inv'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  var cw=document.getElementById('content-wrap');if(cw)cw.style.display='flex';
   var c=document.getElementById('content');if(c)c.style.display='block';
+  // Show/hide add buttons
+  var addProcBtn=document.getElementById('render-add-proc');
+  var addCatBtn=document.getElementById('render-add-cat');
+  if(addProcBtn)addProcBtn.style.display=(activeCat==='todos'||CATS.find(function(c){return c.id===activeCat;}))?'flex':'none';
+  if(addCatBtn)addCatBtn.style.display=addProcBtn?addProcBtn.style.display:'none';
   if(activeCat&&activeCat.indexOf('list-')===0){renderList(activeCatList);return;}
   if(activeCat&&activeCat.indexOf('stock-')===0){renderStock(activeStock);return;}
   var el=document.getElementById('content');
@@ -1622,7 +1644,14 @@ function render(){
     }
   }
   if(!procs.length){el.innerHTML='<div class="empty"><p style="font-size:13px;color:var(--text2)">Nenhum processo encontrado.</p></div>';return;}
-  var h='';
+  // Action bar
+  var actionBar='<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">';
+  if(currentUser&&currentUser.role==='admin'){
+    actionBar+='<button class="btn-pri" onclick="openProcM(null)" style="font-size:12px;padding:5px 14px">+ Novo processo</button>';
+    actionBar+='<button class="btn-sec" onclick="openCatM(null)" style="font-size:12px;padding:5px 14px">+ Nova categoria</button>';
+  }
+  actionBar+='</div>';
+  var h=actionBar;
   for(var ci=0;ci<catsToShow.length;ci++){
     var cat=catsToShow[ci];
     var cp=[];for(var i=0;i<procs.length;i++)if(procs[i].cat===cat.id)cp.push(procs[i]);
@@ -3066,6 +3095,11 @@ function openEditProcEnhanced(procId){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+
+
 
 
 
