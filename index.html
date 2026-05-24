@@ -583,24 +583,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 <!-- PROC MODAL -->
 <div class="modal-overlay" id="m-proc">
-  <div class="modal">
-    <div class="mhead" id="mh-proc"><div class="mhead-title"><i class="ti ti-file-plus" aria-hidden="true"></i><span id="mh-proc-t">Novo processo</span></div><button class="mclose" onclick="closeM('m-proc')">✕</button></div>
+  <div class="modal" style="max-width:420px">
+    <div class="mhead" id="mh-proc">
+      <div class="mhead-title"><i class="ti ti-file-plus" aria-hidden="true"></i><span id="mh-proc-t">Novo processo</span></div>
+      <button class="mclose" onclick="closeM('m-proc')">✕</button>
+    </div>
     <div class="mbody">
-      <div class="grid2">
-        <div class="mf" style="grid-column:1/-1"><label>Nome do processo <span class="req">*</span></label><input type="text" id="mp-name" placeholder="Ex: Criar usuário no AD"></div>
-        <div class="mf" id="mp-cat-row" style="display:none"><label>Categoria</label><select id="mp-cat"></select></div>
-        <div class="mf"><label>Ícone</label><input type="text" id="mp-icon" placeholder="ti-file" oninput="updIcon()"><div class="icon-prev" id="icon-prev"><i class="ti ti-file" id="icon-prev-i" aria-hidden="true"></i><span id="icon-prev-t">ti-file</span></div></div>
-      </div>
-      <div class="mf"><label>Descrição curta</label><input type="text" id="mp-desc" placeholder="Uma linha sobre o processo"></div>
-      <div class="mf"><label>Fluxos alternativos</label>
-        <div class="badge-row" id="br-flux">
-          <span class="badge-opt on" onclick="selBadge(this,'br-flux')"><i class="ti ti-git-branch" style="font-size:12px" aria-hidden="true"></i> Padrão (1 fluxo)</span>
-          <span class="badge-opt" onclick="selBadge(this,'br-flux')"><i class="ti ti-git-fork" style="font-size:12px" aria-hidden="true"></i> Com fluxo alternativo</span>
+      <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
+        <div class="mf">
+          <label>Nome do processo <span class="req">*</span></label>
+          <input type="text" id="mp-name" placeholder="Ex: Manutenção de impressoras">
+        </div>
+        <div class="mf" id="mp-cat-row" style="display:none">
+          <label>Categoria</label>
+          <select id="mp-cat"></select>
+        </div>
+        <div class="mf">
+          <label>Ícone <span style="font-size:10px;color:var(--text3);font-weight:400">(opcional)</span></label>
+          <input type="text" id="mp-icon" placeholder="ti-file" oninput="updIcon()">
+          <div class="icon-prev" id="icon-prev"><i class="ti ti-file" id="icon-prev-i" aria-hidden="true"></i></div>
         </div>
       </div>
-      <div class="mf"><label style="display:flex;align-items:center;justify-content:space-between">Passos do processo <button type="button" onclick="addStep()" style="background:var(--green);border:none;color:#fff;padding:3px 10px;border-radius:var(--rs);font-size:11px;cursor:pointer;font-family:var(--font)">+ Passo</button></label><div id="mp-steps-container" style="margin-top:8px;max-height:320px;overflow-y:auto;padding-right:2px"></div></div>
     </div>
-    <div class="mfooter"><button class="mbtn" onclick="closeM('m-proc')">Cancelar</button><button class="mbtn ok" onclick="saveProc()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Salvar processo</button></div>
+    <div class="mfooter">
+      <button class="mbtn" onclick="closeM('m-proc')">Cancelar</button>
+      <button class="mbtn ok" onclick="saveProc()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Criar processo</button>
+    </div>
   </div>
 </div>
 
@@ -799,6 +807,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
 
 
 
@@ -3037,20 +3047,19 @@ function saveProc(){
   var cat = document.getElementById('mp-cat');
   var icon = document.getElementById('mp-icon');
   var iconVal = icon ? (icon.value.trim() || 'ti-file') : 'ti-file';
-  // Use selected cat, or first cat, or create 'Processos Gerais'
-  var catVal = (cat && cat.value && cat.value!=='__new__') ? cat.value : (CATS[0] ? CATS[0].id : '');
+  var catVal = (cat && cat.value && cat.value!=='__new__'&&cat.value!=='') ? cat.value : (CATS[0] ? CATS[0].id : '');
   if(!catVal){
-    var gc={id:'c-geral-'+Date.now(),label:'Processos Gerais',icon:'ti-folder'};
+    var gc={id:'c'+Date.now(),label:'Processos Gerais',icon:'ti-folder'};
     CATS.push(gc); syncCat(gc,true); catVal=gc.id;
   }
 
-  // Collect steps from individual inputs
+  // Collect steps - from editor if editing, empty if new
   var steps = [];
   document.querySelectorAll('.mp-step-input').forEach(function(el){
     var t = el.value.trim();
     if(t) steps.push({title:t, desc:'', checks:[], warn:'', info:''});
   });
-  if(!steps.length) steps = [{title:'Passo 1', desc:'', checks:[], warn:'', info:''}];
+  if(!steps.length && !editProcId) steps = [];
 
   if(editProcId){
     var p = findById(PROCS, editProcId);
@@ -3113,6 +3122,64 @@ function quickAddStep(procId, branchIdx){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
