@@ -565,7 +565,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           <span class="badge-opt" onclick="selBadge(this,'br-flux')"><i class="ti ti-git-fork" style="font-size:12px" aria-hidden="true"></i> Com fluxo alternativo</span>
         </div>
       </div>
-      <div class="mf"><label>Passos iniciais <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--text3)">opcional — um por linha</span></label><textarea id="mp-steps" placeholder="1. Passo um&#10;2. Passo dois&#10;3. Passo três"></textarea><div class="hint">Após salvar, adicione detalhes, código, avisos e checklists em cada passo.</div></div>
+      <div class="mf"><label style="display:flex;align-items:center;justify-content:space-between">Passos do processo <button type="button" onclick="addStep()" style="background:var(--green);border:none;color:#fff;padding:3px 10px;border-radius:var(--rs);font-size:11px;cursor:pointer;font-family:var(--font)">+ Passo</button></label><div id="mp-steps-container" style="margin-top:8px;max-height:320px;overflow-y:auto;padding-right:2px"></div></div>
     </div>
     <div class="mfooter"><button class="mbtn" onclick="closeM('m-proc')">Cancelar</button><button class="mbtn ok" onclick="saveProc()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Salvar processo</button></div>
   </div>
@@ -755,7 +755,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           <div id="inv-body"></div>
         </div>
       </div>
-      <div style="display:none;flex:1;flex-direction:column;overflow:hidden" id="content-wrap">
+      <div style="display:none;flex:1;flex-direction:column;overflow:hidden" id="content-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0">
         <button id="render-add-proc" onclick="openProcM(null)" style="display:none;align-items:center;gap:5px;background:var(--green);border:none;color:#fff;padding:6px 14px;border-radius:var(--rs);font-size:12px;cursor:pointer;font-family:var(--font)">+ Novo processo</button>
       </div>
@@ -766,6 +766,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
+
+
+
+var _ativoReg={};
+function _regAtivo(tipo,item,pred,dept){
+  var key='r'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  _ativoReg[key]={tipo:tipo,item:item,pred:pred,dept:dept};
+  return key;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -1133,9 +1152,10 @@ function navSec(id){
   ['s-dash','s-inv','content','content-wrap'].forEach(function(sid){var el=document.getElementById(sid);if(el)el.style.display='none';});
   if(id==='dash'){var el=document.getElementById('s-dash');if(el)el.style.display='block';renderDashboard();}
   else if(id==='ativos'){var el=document.getElementById('s-inv');if(el)el.style.display='flex';renderInv('comp');}
-  else if(id==='estoque'){var el=document.getElementById('content');if(el)el.style.display='block';if(STOCK&&STOCK.length)renderStock(STOCK[0].id);}
-  else if(id==='listas'){var el=document.getElementById('content');if(el)el.style.display='block';if(LISTS&&LISTS.length)renderList(LISTS[0].id);}
+  else if(id==='estoque'){var el=document.getElementById('content');if(el)el.style.display='block';if(STOCK&&STOCK.length){renderStock(STOCK[0].id);}else{var el=document.getElementById('content');if(el)el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3)">Carregando estoque...</div>';}}
+  else if(id==='listas'){var el=document.getElementById('content');if(el)el.style.display='block';if(LISTS&&LISTS.length){renderList(LISTS[0].id);}else{var el=document.getElementById('content');if(el)el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3)">Carregando listas...</div>';}}
   else if(id==='proc'||id==='processos'){
+    var cw=document.getElementById('content-wrap');if(cw)cw.style.display='flex';
     var el=document.getElementById('content');if(el)el.style.display='block';
     activeCat='todos';
     var tb2=document.getElementById('tb-title');if(tb2)tb2.textContent='Processos N1';
@@ -1189,7 +1209,7 @@ function renderDashboard(){
 function renderInv(tipo,filterPred){
   _invTipo=tipo||'comp';
   var qEl=document.getElementById('inv-q');if(qEl)qEl.value='';
-  ['s-dash','content'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['s-dash','content','content-wrap'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   var inv=document.getElementById('s-inv');if(inv)inv.style.display='flex';
   var tabs=['comp','note','imp','ramal'];
   var labels={comp:'💻 Computadores',note:'🖥️ Notebooks',imp:'🖨️ Impressoras',ramal:'📞 Ramais'};
@@ -1745,20 +1765,6 @@ function render(){
   }
   if(!procs.length){el.innerHTML='<div class="empty"><p style="font-size:13px;color:var(--text2)">Nenhum processo encontrado.</p></div>';return;}
   
-  var cols=[['#3a7c2e','#fff'],['#185FA5','#fff'],['#534AB7','#fff'],['#BA7517','#fff'],['#0F6E56','#fff']];
-  var h='';
-  for(var i=0;i<USERS.length;i++){
-    var u=USERS[i];var col=cols[i%cols.length];
-    h+='<tr class="utr"><td class="utd" style="width:46px"><div class="u-av" style="background:'+col[0]+';color:'+col[1]+'">'+u.name[0]+'</div></td>';
-    h+='<td class="utd"><div class="u-name">'+u.name+'</div><div class="u-login">'+u.login+'</div></td>';
-    h+='<td class="utd"><span class="u-role '+(u.role==='admin'?'role-a':'role-t')+'">'+(u.role==='admin'?'Admin':'Tecnico')+'</span></td>';
-    h+='<td class="utd"><span class="u-status"><div class="udot '+(u.active?'on':'off')+'"></div>'+(u.active?'Ativo':'Inativo')+'</span></td>';
-    h+='<td class="utd" style="font-size:11px;color:var(--text3);font-family:var(--mono)">'+(u.last||'-')+'</td>';
-    h+='<td class="utd"><div class="u-acts"><button class="u-act" onclick="openUserM(\''+u.id+'\')">editar</button><button class="u-act" onclick="openPassM(\''+u.id+'\')">senha</button><button class="u-act" onclick="toggleUserActive(\''+u.id+'\')">'+(u.active?'desativar':'ativar')+'</button>';
-    if(!currentUser||u.id!==currentUser.id)h+='<button class="u-act del" onclick="confirmDelUser(\''+u.id+'\')">excluir</button>';
-    h+='</div></td></tr>';
-  }
-  tbody.innerHTML=h;
   var lbl=document.getElementById('u-count-lbl');if(lbl){var at=USERS.filter(function(u){return u.active;}).length;lbl.textContent=USERS.length+' usuarios - '+at+' ativo'+(at!==1?'s':'');}
 }
 function renderCatsList(){
@@ -1803,6 +1809,72 @@ function chkStr(inpId,barId,lblId){
   else{bar.classList.add('s');lbl.classList.add('s');lbl.textContent='Senha forte';}
 }
 function exportData(){var d=JSON.stringify({CATS:CATS,PROCS:PROCS,LISTS:LISTS,STOCK:STOCK},null,2);var a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(d);a.download='wiki-tic-backup.json';a.click();}
+function renderList(listId){
+  activeStock=null;activeCatList=listId;
+  var list=findById(LISTS,listId);
+  var cw=document.getElementById('content-wrap');if(cw)cw.style.display='flex';
+  var el=document.getElementById('content');
+  if(!el)return;
+  el.style.display='block';
+  if(!list){el.innerHTML='';return;}
+  var h='';
+  h+='<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">';
+  LISTS.forEach(function(l){
+    var on=l.id===listId;
+    h+='<button onclick="renderList(\''+l.id+'\')" style="padding:5px 14px;border-radius:14px;border:1px solid '+(on?'var(--green)':'var(--border2)')+';background:'+(on?'var(--green)':'var(--surface)')+';color:'+(on?'#fff':'var(--text2)')+';font-size:12px;cursor:pointer;font-family:var(--font)">'+esc(l.name)+'</button>';
+  });
+  h+='</div>';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
+  h+='<div><div style="font-size:16px;font-weight:500">'+esc(list.name)+'</div>';
+  if(list.desc)h+='<div style="font-size:12px;color:var(--text3);margin-top:2px">'+esc(list.desc)+'</div>';
+  h+='</div>';
+  if(currentUser&&currentUser.role==='admin'){
+    h+='<button onclick="openListItemM(null,\''+listId+'\')" style="background:var(--green);border:none;color:#fff;padding:6px 14px;border-radius:var(--rs);font-size:12px;cursor:pointer;font-family:var(--font)">+ Adicionar item</button>';
+  }
+  h+='</div>';
+  if(!list.items||!list.items.length){
+    h+='<div class="empty"><p>Nenhum item. Clique em + Adicionar item.</p></div>';
+  } else {
+    var thStyle='padding:8px 12px;text-align:left;color:#a8d898;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);border-bottom:1px solid rgba(255,255,255,.15)';
+    h+='<div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--rs)">';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:12px">';
+    h+='<thead><tr style="background:#1a3d1a">';
+    h+='<th style="'+thStyle+'">#</th>';
+    h+='<th style="'+thStyle+'">Item / Especificação</th>';
+    h+='<th style="'+thStyle+';text-align:center">Em estoque</th>';
+    h+='<th style="'+thStyle+';text-align:center">A comprar</th>';
+    h+='<th style="'+thStyle+'">Status</th>';
+    h+='<th style="'+thStyle+'">Obs / Link</th>';
+    if(currentUser&&currentUser.role==='admin')h+='<th style="'+thStyle+';text-align:center">Ações</th>';
+    h+='</tr></thead><tbody>';
+    var sm={falta:'<span style="background:#FCEBEB;color:#791F1F;padding:2px 8px;border-radius:8px;font-size:10px">Falta</span>',parcial:'<span style="background:#FAEEDA;color:#633806;padding:2px 8px;border-radius:8px;font-size:10px">Parcial</span>',ok:'<span style="background:#EAF3DE;color:#27500A;padding:2px 8px;border-radius:8px;font-size:10px">OK</span>'};
+    list.items.forEach(function(item,i){
+      h+='<tr style="border-bottom:0.5px solid var(--border)" onmouseover="this.style.background=\'var(--green-light)\'" onmouseout="this.style.background=\'\'">';
+      h+='<td style="padding:8px 12px;color:var(--text3);font-family:var(--mono);font-size:10px">'+(i+1)+'</td>';
+      h+='<td style="padding:8px 12px"><div style="font-weight:500">'+esc(item.name||'')+'</div>';
+      if(item.spec)h+='<div style="font-size:10px;color:var(--text3)">'+esc(item.spec)+'</div>';
+      h+='</td>';
+      h+='<td style="padding:8px 12px;text-align:center;font-family:var(--mono)">'+(item.qtyStock||0)+'</td>';
+      h+='<td style="padding:8px 12px;text-align:center;font-family:var(--mono);font-weight:600">'+(item.qty||0)+'</td>';
+      h+='<td style="padding:8px 12px">'+(sm[item.status]||sm.falta)+'</td>';
+      h+='<td style="padding:8px 12px;font-size:11px">';
+      if(item.link)h+='<a href="'+esc(item.link)+'" target="_blank" style="color:var(--blue)">🔗 Link</a>';
+      else if(item.obs)h+=esc(item.obs);
+      else h+='<span style="color:var(--text3)">—</span>';
+      h+='</td>';
+      if(currentUser&&currentUser.role==='admin'){
+        h+='<td style="padding:8px 12px;text-align:center;white-space:nowrap">';
+        h+='<button onclick="openListItemM(\''+item.id+'\',\''+listId+'\')" style="background:var(--blue-bg);border:1px solid var(--blue-bdr);color:var(--blue);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer;margin-right:3px">editar</button>';
+        h+='<button onclick="delListItem(\''+listId+'\',\''+item.id+'\')" style="background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--red);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer">excluir</button>';
+        h+='</td>';
+      }
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  el.innerHTML=h;
+}
+
 function renderStock(stockId){
   var el=document.getElementById('content');
   var grp=null;for(var i=0;i<STOCK.length;i++)if(STOCK[i].id===stockId){grp=STOCK[i];break;}
@@ -2321,17 +2393,12 @@ function renderAtivos(){
 
 // ── ATIVOS CRUD ──────────────────────────────────────────────────────
 var _editAtivoData=null, _editAtivoTipo=null;
-var _ativoReg={};
-function _regAtivo(tipo,item,pred,dept){
-  var key='r'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
-  _ativoReg[key]={tipo:tipo,item:item,pred:pred,dept:dept};
-  return key;
-}
 
 
-function _editReg(k){var r=_ativoReg[k];if(r)editAtivo(r.tipo,r.item);}
-function _dupReg(k){var r=_ativoReg[k];if(r)dupAtivo(r.tipo,r.item);}
-function _delReg(k){var r=_ativoReg[k];if(r)delAtivo(r.tipo,r.item,r.pred,r.dept);}
+
+function _editReg(k){var r=_ativoReg[k];if(!r)return;if(typeof openEditAtivo==='function')openEditAtivo(r.tipo,r.pred,r.dept,r.item.id||'');else if(typeof openAddAtivo==='function')openAddAtivo(r.tipo,r.pred,r.dept);}
+function _dupReg(k){var r=_ativoReg[k];if(!r)return;dupAtivo(r.tipo,r.pred,r.dept,r.item.id||'');}
+function _delReg(k){var r=_ativoReg[k];if(!r)return;delAtivo(r.tipo,r.pred,r.dept,r.item.id||'',r.item.nome||'');}
 function closeAtivoModal(){var m=document.getElementById('m-ativo');if(m)m.remove();}
 
 function addAtivo(tipo,pred,dept){
@@ -2795,8 +2862,188 @@ function openEditProcEnhanced(procId){
   showM('m-proc');
 }
 
+// ── TOGGLE CAT/PROC ──────────────────────────────────────────
+var openCats={};
+var openProcs={};
+
+function toggleCat(id){
+  openCats[id]=!openCats[id];
+  render();
+}
+
+function toggleProc(id){
+  openProcs[id]=!openProcs[id];
+  render();
+}
+
+// ── DUP / DEL PROC ───────────────────────────────────────────
+function dupProc(id){
+  var proc=findById(PROCS,id);
+  if(!proc)return;
+  var copy=JSON.parse(JSON.stringify(proc));
+  copy.id='p'+Date.now();
+  copy.label=copy.label+' (cópia)';
+  PROCS.push(copy);
+  syncProc(copy,true);
+  renderSidebarNew();
+  render();
+}
+
+function confirmDelProc(id){
+  var proc=findById(PROCS,id);
+  if(!proc)return;
+  if(!confirm('Excluir o processo "'+proc.label+'"?'))return;
+  PROCS=PROCS.filter(function(p){return p.id!==id;});
+  sbDelete('processos',id);
+  renderSidebarNew();
+  render();
+}
+
+function dupCat(id){
+  var cat=findById(CATS,id);
+  if(!cat)return;
+  var newId='c'+Date.now();
+  var copy={id:newId,label:cat.label+' (cópia)',icon:cat.icon};
+  CATS.push(copy);
+  var catProcs=PROCS.filter(function(p){return p.cat===id;});
+  catProcs.forEach(function(p){
+    var pc=JSON.parse(JSON.stringify(p));
+    pc.id='p'+Date.now()+Math.random().toString(36).substr(2,4);
+    pc.cat=newId;
+    pc.label=pc.label+' (cópia)';
+    PROCS.push(pc);
+    syncProc(pc,true);
+  });
+  syncCat(copy,true);
+  openCats[newId]=true;
+  renderSidebarNew();
+  render();
+}
+
+// ── CATEGORY CRUD ────────────────────────────────────────────
+var editCatId = null;
+
+function openCatM(id){
+  editCatId = id || null;
+  var titleEl = document.getElementById('mh-cat-t');
+  if(titleEl) titleEl.textContent = id ? 'Editar categoria' : 'Nova categoria';
+  var nameEl = document.getElementById('mc-name');
+  var iconEl = document.getElementById('mc-icon');
+  if(id){
+    var cat = findById(CATS, id);
+    if(cat){
+      if(nameEl) nameEl.value = cat.label;
+      if(iconEl) iconEl.value = cat.icon || 'ti-folder';
+    }
+  } else {
+    if(nameEl) nameEl.value = '';
+    if(iconEl) iconEl.value = 'ti-folder';
+  }
+  showM('m-cat');
+}
+
+function saveCat(){
+  var nameEl = document.getElementById('mc-name');
+  var iconEl = document.getElementById('mc-icon');
+  var name = nameEl ? nameEl.value.trim() : '';
+  if(!name) return;
+  var icon = iconEl ? (iconEl.value.trim() || 'ti-folder') : 'ti-folder';
+  if(editCatId){
+    var cat = findById(CATS, editCatId);
+    if(cat){ cat.label = name; cat.icon = icon; syncCat(cat, false); }
+  } else {
+    var nid = 'c' + Date.now();
+    var newCat = {id: nid, label: name, icon: icon};
+    CATS.push(newCat);
+    openCats[nid] = true;
+    syncCat(newCat, true);
+  }
+  closeM('m-cat');
+  renderSidebarNew();
+  render();
+}
+
+function confirmDelCat(id){
+  var cat = findById(CATS, id);
+  if(!cat) return;
+  var cnt = PROCS.filter(function(p){ return p.cat === id; }).length;
+  var msg = 'Excluir a categoria "' + cat.label + '"?';
+  if(cnt) msg += ' Os ' + cnt + ' processo(s) também serão removidos.';
+  var msgEl = document.getElementById('m-confirm-msg');
+  if(msgEl) msgEl.textContent = msg;
+  var okBtn = document.getElementById('m-confirm-ok');
+  if(okBtn) okBtn.onclick = function(){
+    PROCS.filter(function(p){ return p.cat === id; }).forEach(function(p){ sbDelete('processos', p.id); });
+    CATS = CATS.filter(function(c){ return c.id !== id; });
+    PROCS = PROCS.filter(function(p){ return p.cat !== id; });
+    if(activeCat === id) activeCat = 'todos';
+    sbDelete('categorias', id);
+    closeM('m-confirm');
+    renderSidebarNew();
+    render();
+  };
+  showM('m-confirm');
+}
+
+function saveProc(){
+  var name = document.getElementById('mp-name');
+  if(!name || !name.value.trim()) return;
+  var cat = document.getElementById('mp-cat');
+  var icon = document.getElementById('mp-icon');
+  var catVal = cat ? cat.value : (CATS[0] ? CATS[0].id : '');
+  var iconVal = icon ? (icon.value.trim() || 'ti-file') : 'ti-file';
+
+  // Collect steps from individual inputs
+  var steps = [];
+  document.querySelectorAll('.mp-step-input').forEach(function(el){
+    var t = el.value.trim();
+    if(t) steps.push({title:t, desc:'', checks:[], warn:'', info:''});
+  });
+  if(!steps.length) steps = [{title:'Passo 1', desc:'', checks:[], warn:'', info:''}];
+
+  if(editProcId){
+    var p = findById(PROCS, editProcId);
+    if(p){
+      p.label = name.value.trim();
+      p.cat = catVal;
+      p.icon = iconVal;
+      if(!p.branches || !p.branches.length) p.branches = [{label:'Padrao', steps:[]}];
+      p.branches[0].steps = steps;
+      syncProc(p, false);
+    }
+  } else {
+    var np = {
+      id: 'p' + Date.now(),
+      cat: catVal,
+      icon: iconVal,
+      label: name.value.trim(),
+      branches: [{label:'Padrao', steps:steps}]
+    };
+    PROCS.push(np);
+    openCats[catVal] = true;
+    syncProc(np, true);
+  }
+  closeM('m-proc');
+  renderSidebarNew();
+  activeCat = catVal;
+  render();
+}
+
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
