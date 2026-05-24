@@ -410,6 +410,77 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .sb-section-drag{margin-bottom:2px}
 .sb-stat-l{font-size:9px;white-space:normal;word-break:break-word}
 
+
+/* ── SIDEBAR CARDS & LINKS ─────────────────────────────── */
+.sb-lbl2{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;padding:2px 2px 5px;font-family:var(--mono);display:flex;align-items:center;justify-content:space-between}
+.drag-handle{color:rgba(255,255,255,.2);font-size:12px;cursor:grab;padding:0 2px}
+.drag-handle:hover{color:rgba(255,255,255,.5)}
+.sb-lnk{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent}
+.sb-lnk:hover{background:rgba(255,255,255,.08);color:#fff}
+.sb-lnk.on{background:rgba(255,255,255,.15);color:#fff;border-left-color:#a8d898}
+.sb-lnk-cnt{margin-left:auto;font-size:10px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:1px 6px;border-radius:8px;font-family:var(--mono);flex-shrink:0}
+.sb-div{border:none;border-top:1px solid rgba(255,255,255,.08);margin:6px 0}
+.sb-section-drag{margin-bottom:4px}
+.sb-section-drag.drag-over{background:rgba(255,255,255,.06);border-radius:8px;border:1px dashed rgba(255,255,255,.2)}
+
+/* SIDEBAR CARD */
+.sb-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;margin-bottom:2px;user-select:none}
+.sb-card:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.25);transform:translateY(-1px)}
+.sb-card.on{background:rgba(168,216,152,.15);border-color:#a8d898}
+.sb-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sb-card-title{font-size:12px;font-weight:500;color:#fff;display:flex;align-items:center;gap:6px}
+.sb-card-arr{font-size:12px;color:rgba(255,255,255,.35)}
+.sb-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.sb-stat{background:rgba(0,0,0,.25);border-radius:6px;padding:6px 8px}
+.sb-stat-v{font-size:15px;font-weight:700;font-family:var(--mono);color:#a8d898;line-height:1}
+.sb-stat-l{font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;line-height:1.2}
+.sb-stat.red .sb-stat-v{color:#F0997B}
+.sb-stat.warn .sb-stat-v{color:#EFC97A}
+.sb-stat.blue .sb-stat-v{color:#7EB8F0}
+
+/* INVENTORY ACCORDION */
+.inv-tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--rs)}
+.pred-block{border-radius:var(--r);overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+.pred-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--green);color:#fff;cursor:pointer;user-select:none;transition:background .15s}
+.pred-hd:hover{background:var(--green3)}
+.pred-hd.open .pred-hd-chev{transform:rotate(180deg)}
+.pred-hd-left{display:flex;align-items:center;gap:8px}
+.pred-hd-icon{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.pred-hd-name{font-size:13px;font-weight:500}
+.pred-hd-right{display:flex;align-items:center;gap:8px}
+.pred-hd-cnt{font-size:11px;font-family:var(--mono);opacity:.85}
+.pred-hd-chev{font-size:12px;transition:transform .2s}
+.pred-body{display:none;background:var(--surface)}
+.pred-body.open{display:block}
+.dept-hd{display:flex;align-items:center;padding:8px 14px 8px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.dept-hd:hover{background:var(--green-light)}
+.dept-hd.open .dept-chev{transform:rotate(180deg)}
+.dept-name{font-size:12px;font-weight:500;flex:1}
+.dept-cnt{font-size:10px;font-family:var(--mono);color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:1px 6px;border-radius:8px}
+.dept-chev{font-size:11px;color:var(--text3);margin-left:8px;transition:transform .2s}
+.comp-list{display:none;background:var(--surface2)}
+.comp-list.open{display:block}
+.comp-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.comp-tbl th{padding:7px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;font-family:var(--mono);position:sticky;top:0;z-index:2}
+.comp-tbl td{padding:7px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle;white-space:nowrap}
+.comp-tbl tr:last-child td{border-bottom:none}
+.comp-tbl tr:hover td{background:var(--green-light)}
+.comp-nm{font-weight:600;font-family:var(--mono);font-size:11px}
+.comp-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.gb{display:inline-block;font-size:10px;padding:2px 6px;border-radius:6px;font-weight:500;font-family:var(--mono);white-space:nowrap}
+.gb-ok{background:#EAF3DE;color:#27500A}
+.gb-warn{background:#FAEEDA;color:#633806}
+.gb-venc{background:#FCEBEB;color:#791F1F}
+.gb-none{background:var(--surface2);color:var(--text3)}
+.inv-tab{padding:5px 12px;border-radius:12px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s}
+.inv-tab:hover{border-color:var(--green);color:var(--green)}
+.inv-tab.on{background:var(--green);border-color:var(--green);color:#fff}
+.inv-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.inv-tbl th{padding:8px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;font-family:var(--mono)}
+.inv-tbl td{padding:8px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.inv-tbl tr:last-child td{border-bottom:none}
+.inv-tbl tr:hover td{background:var(--green-light)}
+
 </style>
 </head>
 <body>
@@ -659,6 +730,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
 
 
 
@@ -915,13 +988,14 @@ var chkItems=[];
 var SB_SECTIONS=[
   {id:'dash',type:'link',icon:'📊',label:'Dashboard'},
   {id:'proc',type:'link',icon:'📋',label:'Todos os processos',cnt:true},
-  {id:'ativos',type:'card',icon:'🖥️',label:'Ativos de rede',stats:[
+  {id:'ativos',type:'card',icon:'🖥️',label:'Inventário',stats:[
     {key:'comp',label:'Computadores'},
     {key:'note',label:'Notebooks'},
     {key:'imp',label:'Impressoras'},
     {key:'vencidas',label:'Gar. vencidas',cls:'red'}
   ]},
-  {id:'estoque',type:'card',icon:'📦',label:'Estoque',stats:[
+  {id:'processos',type:'cats',icon:'⚙️',label:'Processos N1'},
+  {id:'estoque',type:'card',icon:'📦',label:'Em estoque',stats:[
     {val:8,label:'Memorias RAM'},
     {val:5,label:'SSDs e HDs'},
     {val:4,label:'Nobreaks',cls:'warn'},
@@ -932,8 +1006,7 @@ var SB_SECTIONS=[
     {val:4,label:'Rede',cls:'red'},
     {val:3,label:'Backbone',cls:'warn'},
     {val:13,label:'Total itens'}
-  ]},
-  {id:'processos',type:'cats',icon:'⚙️',label:'Processos N1'}
+  ]}
 ];
 
 
@@ -943,7 +1016,8 @@ function renderSidebarNew(){
   var h='';
   SB_SECTIONS.forEach(function(sec,idx){
     h+='<div class="sb-section-drag" draggable="true" ondragstart="_sdStart(event,'+idx+')" ondragover="_sdOver(event)" ondrop="_sdDrop(event,'+idx+')" ondragend="_sdEnd()">';
-    h+='<div class="sb-lbl2">'+sec.label+' <span class="drag-handle">⠿</span></div>';
+    var secLabels={dash:'Principal',proc:'Principal',ativos:'Ativos de rede',processos:'Processos N1',estoque:'Estoque',listas:'Listas de compras'};
+    h+='<div class="sb-lbl2">'+(secLabels[sec.id]||sec.label)+' <span class="drag-handle" title="Arrastar para reordenar">⠿</span></div>';
     if(sec.type==='link'){
       var cnt=sec.cnt?PROCS.length:'';
       var sid=sec.id;
@@ -1192,7 +1266,14 @@ function checkSession(){
     return true;
   }catch(e){return false;}
 }
-document.addEventListener('DOMContentLoaded',function(){checkSession();});
+// Auto-check session on load
+(function(){
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){checkSession();});
+  } else {
+    checkSession();
+  }
+})();
 
 
 var USERS=[
@@ -2420,6 +2501,8 @@ function renderAtivos(){
 
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
 
 
 
