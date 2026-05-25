@@ -514,6 +514,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .add-step-btn.edit-btn:hover{background:var(--blue);color:#fff}
 .empty-steps{padding:20px 16px;color:var(--text3);font-size:12px;font-style:italic;text-align:center}
 
+
+/* ── ICON PICKER ─────────────────────────── */
+.icon-pick-btn{width:36px;height:36px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-size:17px}
+.icon-pick-btn:hover{background:var(--green-light);border-color:var(--green-border);color:var(--green3)}
+.icon-pick-btn.on{background:var(--green);border-color:var(--green);color:#fff}
+
 </style>
 </head>
 <body>
@@ -585,29 +591,35 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <div class="modal-overlay" id="m-proc">
   <div class="modal" style="max-width:420px">
     <div class="mhead" id="mh-proc">
-      <div class="mhead-title"><i class="ti ti-file-plus" aria-hidden="true"></i><span id="mh-proc-t">Novo processo</span></div>
+      <div class="mhead-title"><i class="ti ti-folder-plus" aria-hidden="true"></i><span id="mh-proc-t">Novo processo</span></div>
       <button class="mclose" onclick="closeM('m-proc')">✕</button>
     </div>
     <div class="mbody">
       <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0">
         <div class="mf">
           <label>Nome do processo <span class="req">*</span></label>
-          <input type="text" id="mp-name" placeholder="Ex: Manutenção de impressoras">
-        </div>
-        <div class="mf" id="mp-cat-row" style="display:none">
-          <label>Categoria</label>
-          <select id="mp-cat"></select>
+          <input type="text" id="mp-name" placeholder="Ex: Permissão de pasta para usuário">
+          <div style="font-size:11px;color:var(--text3);margin-top:4px">Aparecerá junto com Criação de Usuário, Formatação, etc.</div>
         </div>
         <div class="mf">
-          <label>Ícone <span style="font-size:10px;color:var(--text3);font-weight:400">(opcional)</span></label>
-          <input type="text" id="mp-icon" placeholder="ti-file" oninput="updIcon()">
-          <div class="icon-prev" id="icon-prev"><i class="ti ti-file" id="icon-prev-i" aria-hidden="true"></i></div>
+          <label>Ícone <span style="font-size:10px;color:var(--text3);font-weight:400">(clique para escolher)</span></label>
+          <input type="hidden" id="mp-icon" value="ti-file">
+          <div id="icon-picker-grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);max-height:160px;overflow-y:auto"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px 10px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs)">
+            <span style="font-size:11px;color:var(--text3)">Selecionado:</span>
+            <i class="ti ti-file" id="icon-prev-i" style="font-size:18px;color:var(--green3)" aria-hidden="true"></i>
+            <span id="icon-prev-lbl" style="font-size:11px;color:var(--text2)">ti-file</span>
+          </div>
+        </div>
+        <div class="mf" id="mp-cat-row" style="display:none">
+          <label>Categoria interna</label>
+          <select id="mp-cat"></select>
         </div>
       </div>
     </div>
     <div class="mfooter">
       <button class="mbtn" onclick="closeM('m-proc')">Cancelar</button>
-      <button class="mbtn ok" onclick="saveProc()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Criar processo</button>
+      <button class="mbtn ok" onclick="saveProc()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> <span id="mp-save-lbl">Criar processo</span></button>
     </div>
   </div>
 </div>
@@ -807,6 +819,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+
+
 
 
 
@@ -1845,21 +1862,7 @@ document.getElementById('cfg-panel').addEventListener('click',function(e){if(e.t
 function showM(id){document.getElementById(id).classList.add('show');}
 function closeM(id){document.getElementById(id).classList.remove('show');}
 // Modals close only via X, Cancel or Save buttons
-function updIcon(){var v=document.getElementById('mp-icon').value.trim()||'ti-file';document.getElementById('icon-prev-i').className='ti '+v;document.getElementById('icon-prev-t').textContent=v;}
-function updCatIcon(){var v=document.getElementById('mc-icon').value.trim()||'ti-folder';document.getElementById('cat-icon-prev-i').className='ti '+v;document.getElementById('cat-icon-prev-t').textContent=v;}
-function setCatIcon(icon,el){document.getElementById('mc-icon').value=icon;updCatIcon();var brow=el.closest('.badge-row').querySelectorAll('.badge-opt');for(var i=0;i<brow.length;i++)brow[i].classList.remove('on');el.classList.add('on');}
-function selBadge(el,rowId){var brow=document.getElementById(rowId).querySelectorAll('.badge-opt');for(var i=0;i<brow.length;i++)brow[i].classList.remove('on');el.classList.add('on');}
-function selRole(el){var opts=el.closest('.role-opts').querySelectorAll('.role-opt');for(var i=0;i<opts.length;i++)opts[i].classList.remove('on');el.classList.add('on');}
-function togglePw(id,btn){var inp=document.getElementById(id);var show=inp.type==='text';inp.type=show?'password':'text';btn.innerHTML=show?'&#128065;':'&#128064;';}
-function chkStr(inpId,barId,lblId){
-  var v=document.getElementById(inpId).value;var bar=document.getElementById(barId);var lbl=document.getElementById(lblId);if(!bar||!lbl)return;
-  var sc=0;if(v.length>=6)sc++;if(/[A-Z]/.test(v))sc++;if(/[0-9]/.test(v))sc++;if(/[^a-zA-Z0-9]/.test(v))sc++;
-  bar.className='pstrength';lbl.className='pslbl';
-  if(!v){bar.style.cssText='';lbl.textContent='Digite a senha';return;}
-  if(sc<=1){bar.classList.add('w');lbl.classList.add('w');lbl.textContent='Senha fraca';}
-  else if(sc<=2){bar.classList.add('m');lbl.classList.add('m');lbl.textContent='Senha media';}
-  else{bar.classList.add('s');lbl.classList.add('s');lbl.textContent='Senha forte';}
-}
+function updIcon(){}
 function exportData(){var d=JSON.stringify({CATS:CATS,PROCS:PROCS,LISTS:LISTS,STOCK:STOCK},null,2);var a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(d);a.download='wiki-tic-backup.json';a.click();}
 function renderList(listId){
   activeStock=null;activeCatList=listId;
@@ -2888,33 +2891,30 @@ function openProcM(catId){
   editProcId=null;
   var el=document.getElementById('mp-name');if(el)el.value='';
   var ei=document.getElementById('mp-icon');if(ei)ei.value='ti-file';
-  var mhTitle=document.getElementById('mh-proc-t');
-  if(mhTitle)mhTitle.textContent='Novo processo';
-  // Hide category field
-  var catRow=document.getElementById('mp-cat-row');
-  if(catRow)catRow.style.display='none';
-  renderStepEditor([{title:'',desc:'',checks:[],warn:'',info:''}]);
+  var pi=document.getElementById('icon-prev-i');if(pi)pi.className='ti ti-file';
+  var catRow=document.getElementById('mp-cat-row');if(catRow)catRow.style.display='none';
+  var mhTitle=document.getElementById('mh-proc-t');if(mhTitle)mhTitle.textContent='Novo processo';
+  var saveLbl=document.getElementById('mp-save-lbl');if(saveLbl)saveLbl.textContent='Criar processo';
   showM('m-proc');
 }
 function openEditProcEnhanced(procId){
   var proc=findById(PROCS,procId);if(!proc)return;
   editProcId=procId;
   var el=document.getElementById('mp-name');if(el)el.value=proc.label;
-  var ei=document.getElementById('mp-icon');if(ei)ei.value=proc.icon||'ti-file';
-  // Show category field when editing
-  var catRow=document.getElementById('mp-cat-row');
-  if(catRow)catRow.style.display='block';
+  var ei=document.getElementById('mp-icon');if(ei){ei.value=proc.icon||'ti-file';var pi=document.getElementById('icon-prev-i');if(pi)pi.className='ti '+(proc.icon||'ti-file');}
   var ec=document.getElementById('mp-cat');
   if(ec){
     var h='';
     CATS.forEach(function(c){h+='<option value="'+c.id+'"'+(c.id===proc.cat?' selected':'')+'>'+c.label+'</option>';});
-    ec.innerHTML=h;
+    ec.innerHTML=h;ec.onchange=null;
   }
-  var mhTitle=document.getElementById('mh-proc-t');
-  if(mhTitle)mhTitle.textContent='Editar processo';
-  var steps=(proc.branches&&proc.branches[0]&&proc.branches[0].steps)||[{title:'Passo 1',desc:'',checks:[],warn:'',info:''}];
-  renderStepEditor(steps);
+  var mhTitle=document.getElementById('mh-proc-t');if(mhTitle)mhTitle.textContent='Editar: '+proc.label;
+  var saveLbl=document.getElementById('mp-save-lbl');if(saveLbl)saveLbl.textContent='Salvar alterações';
+  // Load steps into editor
+  var steps=(proc.branches&&proc.branches[0]&&proc.branches[0].steps)||[];
+  renderStepEditor(steps.length?steps:[{title:'',desc:'',checks:[],warn:'',info:''}]);
   showM('m-proc');
+  setTimeout(initIconPicker, 50);
 }
 
 // ── TOGGLE CAT/PROC ──────────────────────────────────────────
@@ -3042,144 +3042,46 @@ function confirmDelCat(id){
 }
 
 function saveProc(){
-  var name = document.getElementById('mp-name');
-  if(!name || !name.value.trim()) return;
-  var cat = document.getElementById('mp-cat');
-  var icon = document.getElementById('mp-icon');
-  var iconVal = icon ? (icon.value.trim() || 'ti-file') : 'ti-file';
-  var catVal = (cat && cat.value && cat.value!=='__new__'&&cat.value!=='') ? cat.value : (CATS[0] ? CATS[0].id : '');
-  if(!catVal){
-    var gc={id:'c'+Date.now(),label:'Processos Gerais',icon:'ti-folder'};
-    CATS.push(gc); syncCat(gc,true); catVal=gc.id;
+  var nameEl=document.getElementById('mp-name');
+  if(!nameEl||!nameEl.value.trim())return;
+  var name=nameEl.value.trim();
+  var iconEl=document.getElementById('mp-icon');
+  var icon=iconEl?(iconEl.value.trim()||'ti-file'):'ti-file';
+
+  if(!editProcId){
+    // CREATE NEW CATEGORY (top-level process group)
+    var nid='c'+Date.now();
+    var newCat={id:nid,label:name,icon:icon};
+    CATS.push(newCat);
+    openCats[nid]=true;
+    syncCat(newCat,true);
+    closeM('m-proc');
+    renderSidebarNew();
+    activeCat=nid;
+    render();
+    return;
   }
 
-  // Collect steps - from editor if editing, empty if new
-  var steps = [];
+  // EDIT existing process (sub-item)
+  var catEl=document.getElementById('mp-cat');
+  var catVal=catEl?catEl.value:(CATS[0]?CATS[0].id:'');
+  var steps=[];
   document.querySelectorAll('.mp-step-input').forEach(function(el){
-    var t = el.value.trim();
-    if(t) steps.push({title:t, desc:'', checks:[], warn:'', info:''});
+    var t=el.value.trim();
+    if(t)steps.push({title:t,desc:'',checks:[],warn:'',info:''});
   });
-  if(!steps.length && !editProcId) steps = [];
-
-  if(editProcId){
-    var p = findById(PROCS, editProcId);
-    if(p){
-      p.label = name.value.trim();
-      p.cat = catVal;
-      p.icon = iconVal;
-      if(!p.branches || !p.branches.length) p.branches = [{label:'Padrao', steps:[]}];
-      p.branches[0].steps = steps;
-      syncProc(p, false);
-    }
-  } else {
-    var np = {
-      id: 'p' + Date.now(),
-      cat: catVal,
-      icon: iconVal,
-      label: name.value.trim(),
-      branches: [{label:'Padrao', steps:steps}]
-    };
-    PROCS.push(np);
-    openCats[catVal] = true;
-    syncProc(np, true);
+  var proc=findById(PROCS,editProcId);
+  if(proc){
+    proc.label=name;proc.icon=icon;proc.cat=catVal;
+    if(!proc.branches||!proc.branches.length)proc.branches=[{label:'Padrão',steps:[]}];
+    if(steps.length)proc.branches[0].steps=steps;
+    syncProc(proc,false);
   }
   closeM('m-proc');
   renderSidebarNew();
-  activeCat = catVal;
+  activeCat=catVal;
   render();
 }
-
-// ── BRANCH & STEP HELPERS ─────────────────────────────────
-var openBranch={};
-
-function switchBranch(procId, branchIdx){
-  openBranch[procId]=branchIdx;
-  render();
-}
-
-function addBranch(procId){
-  var proc=findById(PROCS,procId);
-  if(!proc)return;
-  var label=prompt('Nome da nova aba (ex: Se não liga):');
-  if(!label)return;
-  if(!proc.branches)proc.branches=[];
-  proc.branches.push({label:label,steps:[]});
-  openBranch[procId]=proc.branches.length-1;
-  syncProc(proc,false);
-  render();
-}
-
-function quickAddStep(procId, branchIdx){
-  var proc=findById(PROCS,procId);
-  if(!proc)return;
-  if(!proc.branches||!proc.branches[branchIdx])return;
-  var title=prompt('Título do passo:');
-  if(!title)return;
-  proc.branches[branchIdx].steps.push({title:title,desc:'',checks:[],warn:'',info:''});
-  syncProc(proc,false);
-  render();
-}
-
-function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
