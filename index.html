@@ -599,7 +599,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="mf">
           <label>Nome do processo <span class="req">*</span></label>
           <input type="text" id="mp-name" placeholder="Ex: Permissão de pasta para usuário">
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">Aparecerá junto com Criação de Usuário, Formatação, etc.</div>
         </div>
         <div class="mf">
           <label>Ícone <span style="font-size:10px;color:var(--text3);font-weight:400">(clique para escolher)</span></label>
@@ -819,6 +818,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+
+
+
 
 
 
@@ -2888,7 +2891,42 @@ function removeStep(idx){
 }
 
 // Override openProcM to use new step editor
-var _origOpenProcM = typeof openProcM==='function'?openProcM:null;
+
+var ICONS_LIST=[
+  ['ti-user','Usuário'],['ti-users','Usuários'],['ti-user-plus','Add usuário'],
+  ['ti-user-minus','Remover usuário'],['ti-user-check','Usuário OK'],
+  ['ti-device-desktop','Computador'],['ti-device-laptop','Notebook'],
+  ['ti-printer','Impressora'],['ti-plug','Plug/Nobreak'],
+  ['ti-network','Rede'],['ti-wifi','Wi-Fi'],['ti-router','Roteador'],
+  ['ti-server','Servidor'],['ti-database','Banco de dados'],
+  ['ti-lock','Cadeado'],['ti-lock-open','Desbloqueado'],
+  ['ti-shield','Segurança'],['ti-key','Chave/Senha'],
+  ['ti-settings','Configurações'],['ti-tool','Ferramenta'],
+  ['ti-building','Prédio'],['ti-home','Casa'],
+  ['ti-file','Arquivo'],['ti-folder','Pasta'],
+  ['ti-file-text','Documento'],['ti-clipboard','Clipboard'],
+  ['ti-checklist','Checklist'],['ti-list','Lista'],
+  ['ti-mail','E-mail'],['ti-phone','Telefone'],
+  ['ti-brand-windows','Windows'],['ti-refresh','Resetar'],
+  ['ti-edit','Editar'],['ti-copy','Copiar'],
+  ['ti-cloud','Cloud'],['ti-alert-triangle','Aviso'],
+  ['ti-info-circle','Info'],['ti-check','Check'],
+  ['ti-link','Link'],['ti-tag','Tag'],['ti-star','Estrela'],
+  ['ti-headphones','Headset'],['ti-chart-bar','Gráfico'],
+  ['ti-calendar','Calendário'],['ti-clock','Relógio']
+];
+
+function selectIcon(iconClass,btn){
+  var inp=document.getElementById('mp-icon');
+  if(inp)inp.value=iconClass;
+  var prev=document.getElementById('icon-prev-i');
+  if(prev)prev.className='ti '+iconClass;
+  var lbl=document.getElementById('icon-prev-lbl');
+  if(lbl)lbl.textContent=iconClass;
+  document.querySelectorAll('.icon-pick-btn').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+}
+
 function openProcM(catId){
   editProcId=null;
   var el=document.getElementById('mp-name');if(el)el.value='';
@@ -2897,17 +2935,58 @@ function openProcM(catId){
   var mhTitle=document.getElementById('mh-proc-t');if(mhTitle)mhTitle.textContent='Novo processo';
   var saveLbl=document.getElementById('mp-save-lbl');if(saveLbl)saveLbl.textContent='Criar processo';
   showM('m-proc');
-  // Build icon grid directly
+  // Build icon grid
   var grid=document.getElementById('icon-picker-grid');
   if(grid){
     var h='';
     ICONS_LIST.forEach(function(ic){
-      h+='<button type="button" class="icon-pick-btn" onclick="selectIcon(\''+ic[0]+'\',this)" title="'+ic[1]+'" style="width:38px;height:38px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px">'
-        +'<i class="ti '+ic[0]+'" aria-hidden="true"></i></button>';
+      h+='<button type="button" class="icon-pick-btn" onclick="selectIcon(\''+ic[0]+'\',this)" title="'+ic[1]+'">'
+        +'<i class="ti '+ic[0]+'" style="font-size:18px" aria-hidden="true"></i></button>';
     });
     grid.innerHTML=h;
   }
 }
+
+function saveProc(){
+  var nameEl=document.getElementById('mp-name');
+  if(!nameEl||!nameEl.value.trim())return;
+  var name=nameEl.value.trim();
+  var iconEl=document.getElementById('mp-icon');
+  var icon=iconEl?(iconEl.value.trim()||'ti-file'):'ti-file';
+  if(!editProcId){
+    // Create new CATEGORY
+    var nid='c'+Date.now();
+    var newCat={id:nid,label:name,icon:icon};
+    CATS.push(newCat);
+    openCats[nid]=true;
+    syncCat(newCat,true);
+    closeM('m-proc');
+    renderSidebarNew();
+    activeCat=nid;
+    render();
+    return;
+  }
+  // Edit existing process
+  var catEl=document.getElementById('mp-cat');
+  var catVal=catEl&&catEl.value?catEl.value:(CATS[0]?CATS[0].id:'');
+  var steps=[];
+  document.querySelectorAll('.mp-step-input').forEach(function(el){
+    var t=el.value.trim();
+    if(t)steps.push({title:t,desc:'',checks:[],warn:'',info:''});
+  });
+  var proc=findById(PROCS,editProcId);
+  if(proc){
+    proc.label=name;proc.icon=icon;proc.cat=catVal;
+    if(!proc.branches||!proc.branches.length)proc.branches=[{label:'Padrão',steps:[]}];
+    if(steps.length)proc.branches[0].steps=steps;
+    syncProc(proc,false);
+  }
+  closeM('m-proc');
+  renderSidebarNew();
+  activeCat=catVal;
+  render();
+}
+
 function openEditProcEnhanced(procId){
   var proc=findById(PROCS,procId);if(!proc)return;
   editProcId=procId;
@@ -3098,6 +3177,140 @@ function saveProc(){
 
 
 
+
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var _ativoReg={};
+function _regAtivo(tipo,item,pred,dept){
+  var key='r'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  _ativoReg[key]={tipo:tipo,item:item,pred:pred,dept:dept};
+  return key;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var SB_URL = 'https://npuzwovluxbghjqiulwh.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wdXp3b3ZsdXhiZ2hqcWl1bHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0ODkwNzgsImV4cCI6MjA5NTA2NTA3OH0.kaBISlm06OdwNdEvnuQhY6ouT4sCrFDogNa19JUBtRg';
+
+function sbHeaders(){
+  return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+}
+function sbGet(table,params){
+  var url=SB_URL+'/rest/v1/'+table+'?order=criado_em.asc';
+  if(params)url+='&'+params;
+  return fetch(url,{method:'GET',headers:sbHeaders()}).then(function(r){return r.json();});
+}
+function sbPost(table,data){
+  return fetch(SB_URL+'/rest/v1/'+table,{method:'POST',headers:sbHeaders(),body:JSON.stringify(data)}).then(function(r){return r.json();});
+}
+function sbPatch(table,id,data){
+  return fetch(SB_URL+'/rest/v1/'+table+'?id=eq.'+id,{method:'PATCH',headers:sbHeaders(),body:JSON.stringify(data)}).then(function(r){return r.json();});
+}
+function sbDelete(table,id){
+  return fetch(SB_URL+'/rest/v1/'+table+'?id=eq.'+id,{method:'DELETE',headers:sbHeaders()});
+}
+var SB_LOADED=false;
+function showLoading(show){var el=document.getElementById('sb-loading');if(el)el.style.display=show?'flex':'none';}
+
+function loadFromSupabase(callback){
+  showLoading(false);
+  // Try Supabase but don't block if it fails
+  if(typeof SB_URL==='undefined'||!SB_URL){if(callback)callback();return;}
+  Promise.all([sbGet('categorias'),sbGet('processos'),sbGet('listas'),sbGet('lista_itens'),sbGet('estoque_grupos'),sbGet('estoque_itens')])
+  .then(function(results){
+    var cats=results[0],procs=results[1],listas=results[2],listaItens=results[3],estoqueGrupos=results[4],estoqueItens=results[5];
+    if(cats&&cats.length>0){
+      CATS=cats.map(function(c){return {id:c.id,label:c.label,icon:c.icon||'ti-folder'};});
+      PROCS=procs.map(function(p){return {id:p.id,cat:p.cat_id,icon:p.icon||'ti-file',label:p.label,branches:p.branches||[{label:'Padrao',steps:[]}]};});
+      LISTS=listas.map(function(l){
+        var itens=listaItens.filter(function(i){return i.lista_id===l.id;}).map(function(i){return {id:i.id,name:i.name,spec:i.spec||'',qtyStock:i.qty_stock||0,qty:i.qty||0,unit:i.unit||'un',link:i.link||'',status:i.status||'falta',obs:i.obs||''};});
+        return {id:l.id,name:l.name,icon:l.icon||'ti-list',desc:l.descricao||'',items:itens};
+      });
+      STOCK=estoqueGrupos.map(function(g){
+        var itens=estoqueItens.filter(function(i){return i.grupo_id===g.id;}).map(function(i){return {id:i.id,name:i.name,spec:i.spec||'',qty:i.qty||0,unit:i.unit||'un',condition:i.condition||'novo',inBox:!!i.in_box,batteryReplaced:!!i.battery_replaced,obs:i.obs||''};});
+        return {id:g.id,name:g.name,icon:g.icon||'ti-package',items:itens};
+      });
+      SB_LOADED=true;
+    } else {
+      populateSupabase(function(){});
+    }
+    if(callback)callback();
+  }).catch(function(err){
+    console.warn('Supabase offline - usando dados locais:',err);
+    if(callback)callback();
+  });
+}
+
+function populateSupabase(callback){
+  var tasks=[];
+  CATS.forEach(function(c){tasks.push(sbPost('categorias',{id:c.id,label:c.label,icon:c.icon}));});
+  Promise.all(tasks).then(function(){
+    var pt=[];PROCS.forEach(function(p){pt.push(sbPost('processos',{id:p.id,cat_id:p.cat,icon:p.icon,label:p.label,branches:p.branches}));});return Promise.all(pt);
+  }).then(function(){
+    var lt=[];LISTS.forEach(function(l){lt.push(sbPost('listas',{id:l.id,name:l.name,icon:l.icon,descricao:l.desc||''}));});return Promise.all(lt);
+  }).then(function(){
+    var it=[];LISTS.forEach(function(l){(l.items||[]).forEach(function(i){it.push(sbPost('lista_itens',{id:i.id,lista_id:l.id,name:i.name,spec:i.spec||'',qty_stock:i.qtyStock||0,qty:i.qty||0,unit:i.unit||'un',link:i.link||'',status:i.status||'falta',obs:i.obs||''}));});});return Promise.all(it);
+  }).then(function(){
+    var st=[];STOCK.forEach(function(g){st.push(sbPost('estoque_grupos',{id:g.id,name:g.name,icon:g.icon}));});return Promise.all(st);
+  }).then(function(){
+    var si=[];STOCK.forEach(function(g){(g.items||[]).forEach(function(i){si.push(sbPost('estoque_itens',{id:i.id,grupo_id:g.id,name:i.name,spec:i.spec||'',qty:i.qty||0,unit:i.unit||'un',condition:i.condition||'novo',in_box:!!i.inBox,battery_replaced:!!i.batteryReplaced,obs:i.obs||''}));});});return Promise.all(si);
+  }).then(function(){SB_LOADED=true;showLoading(false);if(callback)callback();})
+  .catch(function(err){console.error('Populate erro:',err);showLoading(false);if(callback)callback();});
+}
+
+function syncCat(cat,isNew){var d={id:cat.id,label:cat.label,icon:cat.icon};if(isNew)sbPost('categorias',d);else sbPatch('categorias',cat.id,d);}
+function syncProc(proc,isNew){var d={id:proc.id,cat_id:proc.cat,icon:proc.icon,label:proc.label,branches:proc.branches};if(isNew)sbPost('processos',d);else sbPatch('processos',proc.id,d);}
+function syncListItem(item,listId,isNew){var d={id:item.id,lista_id:listId,name:item.name,spec:item.spec||'',qty_stock:item.qtyStock||0,qty:item.qty||0,unit:item.unit||'un',link:item.link||'',status:item.status||'falta',obs:item.obs||''};if(isNew)sbPost('lista_itens',d);else sbPatch('lista_itens',item.id,d);}
+function syncStockItem(item,groupId,isNew){var d={id:item.id,grupo_id:groupId,name:item.name,spec:item.spec||'',qty:item.qty||0,unit:item.unit||'un',condition:item.condition||'novo',in_box:!!item.inBox,battery_replaced:!!item.batteryReplaced,obs:item.obs||''};if(isNew)sbPost('estoque_itens',d);else sbPatch('estoque_itens',item.id,d);}
 
 </script>
 </body>
