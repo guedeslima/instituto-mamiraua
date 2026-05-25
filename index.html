@@ -820,6 +820,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 <script>
 
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 
@@ -2890,12 +2891,12 @@ var _origOpenProcM = typeof openProcM==='function'?openProcM:null;
 function openProcM(catId){
   editProcId=null;
   var el=document.getElementById('mp-name');if(el)el.value='';
-  var ei=document.getElementById('mp-icon');if(ei)ei.value='ti-file';
-  var pi=document.getElementById('icon-prev-i');if(pi)pi.className='ti ti-file';
+  var inp=document.getElementById('mp-icon');if(inp)inp.value='ti-file';
   var catRow=document.getElementById('mp-cat-row');if(catRow)catRow.style.display='none';
   var mhTitle=document.getElementById('mh-proc-t');if(mhTitle)mhTitle.textContent='Novo processo';
   var saveLbl=document.getElementById('mp-save-lbl');if(saveLbl)saveLbl.textContent='Criar processo';
   showM('m-proc');
+  setTimeout(initIconPicker,80);
 }
 function openEditProcEnhanced(procId){
   var proc=findById(PROCS,procId);if(!proc)return;
@@ -3082,6 +3083,7 @@ function saveProc(){
   activeCat=catVal;
   render();
 }
+
 
 
 
