@@ -821,6 +821,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <script>
 
 
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 
@@ -2896,7 +2897,16 @@ function openProcM(catId){
   var mhTitle=document.getElementById('mh-proc-t');if(mhTitle)mhTitle.textContent='Novo processo';
   var saveLbl=document.getElementById('mp-save-lbl');if(saveLbl)saveLbl.textContent='Criar processo';
   showM('m-proc');
-  setTimeout(initIconPicker,80);
+  // Build icon grid directly
+  var grid=document.getElementById('icon-picker-grid');
+  if(grid){
+    var h='';
+    ICONS_LIST.forEach(function(ic){
+      h+='<button type="button" class="icon-pick-btn" onclick="selectIcon(\''+ic[0]+'\',this)" title="'+ic[1]+'" style="width:38px;height:38px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px">'
+        +'<i class="ti '+ic[0]+'" aria-hidden="true"></i></button>';
+    });
+    grid.innerHTML=h;
+  }
 }
 function openEditProcEnhanced(procId){
   var proc=findById(PROCS,procId);if(!proc)return;
@@ -3083,6 +3093,7 @@ function saveProc(){
   activeCat=catVal;
   render();
 }
+
 
 
 
