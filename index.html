@@ -818,6 +818,37 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+
+function switchBranch(procId, branchIdx){
+  openBranch[procId]=branchIdx;
+  render();
+}
+
+function addBranch(procId){
+  var proc=findById(PROCS,procId);
+  if(!proc)return;
+  var label=prompt('Nome da nova aba (ex: Se não liga):');
+  if(!label)return;
+  if(!proc.branches)proc.branches=[{label:'Padrão',steps:[]}];
+  proc.branches.push({label:label,steps:[]});
+  openBranch[procId]=proc.branches.length-1;
+  syncProc(proc,false);
+  render();
+}
+
+function quickAddStep(procId, branchIdx){
+  var proc=findById(PROCS,procId);
+  if(!proc)return;
+  if(!proc.branches)proc.branches=[{label:'Padrão',steps:[]}];
+  if(!proc.branches[branchIdx])proc.branches[branchIdx]={label:'Padrão',steps:[]};
+  if(!proc.branches[branchIdx].steps)proc.branches[branchIdx].steps=[];
+  var title=prompt('Título do passo:');
+  if(!title)return;
+  proc.branches[branchIdx].steps.push({title:title,desc:'',checks:[],warn:'',info:''});
+  syncProc(proc,false);
+  render();
+}
+
 function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
 
 var openBranch={};
@@ -3334,6 +3365,7 @@ function syncCat(cat,isNew){var d={id:cat.id,label:cat.label,icon:cat.icon};if(i
 function syncProc(proc,isNew){var d={id:proc.id,cat_id:proc.cat,icon:proc.icon,label:proc.label,branches:proc.branches};if(isNew)sbPost('processos',d);else sbPatch('processos',proc.id,d);}
 function syncListItem(item,listId,isNew){var d={id:item.id,lista_id:listId,name:item.name,spec:item.spec||'',qty_stock:item.qtyStock||0,qty:item.qty||0,unit:item.unit||'un',link:item.link||'',status:item.status||'falta',obs:item.obs||''};if(isNew)sbPost('lista_itens',d);else sbPatch('lista_itens',item.id,d);}
 function syncStockItem(item,groupId,isNew){var d={id:item.id,grupo_id:groupId,name:item.name,spec:item.spec||'',qty:item.qty||0,unit:item.unit||'un',condition:item.condition||'novo',in_box:!!item.inBox,battery_replaced:!!item.batteryReplaced,obs:item.obs||''};if(isNew)sbPost('estoque_itens',d);else sbPatch('estoque_itens',item.id,d);}
+
 
 
 
