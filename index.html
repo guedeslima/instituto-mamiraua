@@ -819,6 +819,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 <script>
 
+
+function markCheck(procId,branchIdx,stepIdx,checkIdx,checked){
+  var proc=findById(PROCS,procId);
+  if(!proc||!proc.branches||!proc.branches[branchIdx])return;
+  var step=proc.branches[branchIdx].steps[stepIdx];
+  if(!step||!step.checks)return;
+  // Just visual - don't persist checks
+}
+
+
 function switchBranch(procId, branchIdx){
   openBranch[procId]=branchIdx;
   render();
@@ -1799,9 +1809,9 @@ function render(){
     h+='<span class="cat-count">'+catProcs.length+' processo'+(catProcs.length!==1?'s':'')+'</span>';
     if(isAdmin){
       h+='<div class="cat-actions" onclick="event.stopPropagation()">';
-      h+='<button class="cat-act" onclick="openCatM(\''+cat.id+'\')">editar</button>';
-      h+='<button class="cat-act" onclick="dupCat(\''+cat.id+'\')">duplicar</button>';
-      h+='<button class="cat-act" onclick="confirmDelCat(\''+cat.id+'\')">excluir</button>';
+      h+='<button class="cat-act" onclick="openCatM(\''+cat.id+'\')">✏ Categoria</button>';
+      h+='<button class="cat-act" onclick="dupCat(\''+cat.id+'\')">⧉ Categoria</button>';
+      h+='<button class="cat-act" onclick="confirmDelCat(\''+cat.id+'\')">✕ Categoria</button>';
       h+='</div>';
     }
     h+='<i class="ti ti-chevron-down cat-chev" aria-hidden="true"></i>';
@@ -2916,15 +2926,36 @@ function renderStepEditor(steps){
   if(!c)return;
   var h='';
   steps.forEach(function(step,i){
-    h+='<div class="mp-step-row" style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">';
-    h+='<div style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:6px">'+(i+1)+'</div>';
-    h+='<textarea class="mp-step-input" rows="2" placeholder="Descreva o passo '+(i+1)+'..." style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:7px 10px;color:var(--text);font-size:12px;outline:none;resize:vertical;font-family:var(--font)">'+esc(step.title||'')+'</textarea>';
-    h+='<button onclick="removeStep('+i+')" style="background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--red);border-radius:5px;padding:3px 7px;font-size:12px;cursor:pointer;margin-top:4px;flex-shrink:0">✕</button>';
+    h+='<div class="mp-step-row" style="border:1px solid var(--border);border-radius:var(--rs);padding:10px;margin-bottom:8px;background:var(--surface2)">';
+    // Step number + remove button
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+    h+='<div style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0">'+(i+1)+'</div>';
+    h+='<span style="font-size:11px;font-weight:600;color:var(--text2);flex:1">PASSO '+(i+1)+'</span>';
+    h+='<button onclick="removeStep('+i+')" style="background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--red);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer">✕ Remover</button>';
+    h+='</div>';
+    // Title
+    h+='<div style="margin-bottom:6px"><label style="font-size:10px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px;text-transform:uppercase">Título *</label>';
+    h+='<textarea class="mp-step-input" data-field="title" rows="2" placeholder="Ex: Verificar cabo de energia..." style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:6px 8px;color:var(--text);font-size:12px;outline:none;resize:vertical;font-family:var(--font);box-sizing:border-box">'+esc(step.title||'')+'</textarea></div>';
+    // Description
+    h+='<div style="margin-bottom:6px"><label style="font-size:10px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px;text-transform:uppercase">Descrição / detalhe</label>';
+    h+='<textarea data-field="desc" rows="2" placeholder="Explicação adicional..." style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:6px 8px;color:var(--text);font-size:12px;outline:none;resize:vertical;font-family:var(--font);box-sizing:border-box">'+esc(step.desc||'')+'</textarea></div>';
+    // Checklist
+    h+='<div style="margin-bottom:6px"><label style="font-size:10px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px;text-transform:uppercase">Checklist (um item por linha)</label>';
+    h+='<textarea data-field="checks" rows="2" placeholder="Item 1&#10;Item 2&#10;Item 3" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:6px 8px;color:var(--text);font-size:12px;outline:none;resize:vertical;font-family:var(--font);box-sizing:border-box">'+esc((step.checks||[]).join('\n'))+'</textarea></div>';
+    // Aviso e info side by side
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">';
+    h+='<div><label style="font-size:10px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px;text-transform:uppercase">⚠️ Aviso</label>';
+    h+='<input data-field="warn" placeholder="Alerta importante..." style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:6px 8px;color:var(--text);font-size:12px;outline:none;box-sizing:border-box" value="'+esc(step.warn||'')+'"></div>';
+    h+='<div><label style="font-size:10px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px;text-transform:uppercase">ℹ️ Info</label>';
+    h+='<input data-field="info" placeholder="Dica ou informação..." style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:6px 8px;color:var(--text);font-size:12px;outline:none;box-sizing:border-box" value="'+esc(step.info||'')+'"></div>';
+    h+='</div>';
+    // Code / navigation path
+    h+='<div><label style="font-size:10px;color:var(--text3);font-weight:600;display:block;margin-bottom:3px;text-transform:uppercase">Caminho / Comando</label>';
+    h+='<input data-field="code" placeholder="Ex: Painel > Usuários > Adicionar" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:6px 8px;color:var(--text);font-size:12px;outline:none;font-family:var(--mono);box-sizing:border-box" value="'+esc(step.code||'')+'"></div>';
     h+='</div>';
   });
   c.innerHTML=h;
 }
-
 function addStep(){
   var inputs=document.querySelectorAll('.mp-step-input');
   var steps=[];
@@ -3023,10 +3054,19 @@ function saveProc(){
   // Edit existing process
   var catEl=document.getElementById('mp-cat');
   var catVal=catEl&&catEl.value?catEl.value:(CATS[0]?CATS[0].id:'');
+  // Collect all step fields
   var steps=[];
-  document.querySelectorAll('.mp-step-input').forEach(function(el){
-    var t=el.value.trim();
-    if(t)steps.push({title:t,desc:'',checks:[],warn:'',info:''});
+  var rows=document.querySelectorAll('.mp-step-row');
+  rows.forEach(function(row){
+    var title=(row.querySelector('[data-field="title"]')||{}).value||'';
+    if(!title.trim())return;
+    var desc=(row.querySelector('[data-field="desc"]')||{}).value||'';
+    var checksRaw=(row.querySelector('[data-field="checks"]')||{}).value||'';
+    var checks=checksRaw.split('\n').map(function(c){return c.trim();}).filter(Boolean);
+    var warn=(row.querySelector('[data-field="warn"]')||{}).value||'';
+    var info=(row.querySelector('[data-field="info"]')||{}).value||'';
+    var code=(row.querySelector('[data-field="code"]')||{}).value||'';
+    steps.push({title:title.trim(),desc:desc.trim(),checks:checks,warn:warn.trim(),info:info.trim(),code:code.trim()});
   });
   var proc=findById(PROCS,editProcId);
   if(proc){
@@ -3365,6 +3405,8 @@ function syncCat(cat,isNew){var d={id:cat.id,label:cat.label,icon:cat.icon};if(i
 function syncProc(proc,isNew){var d={id:proc.id,cat_id:proc.cat,icon:proc.icon,label:proc.label,branches:proc.branches};if(isNew)sbPost('processos',d);else sbPatch('processos',proc.id,d);}
 function syncListItem(item,listId,isNew){var d={id:item.id,lista_id:listId,name:item.name,spec:item.spec||'',qty_stock:item.qtyStock||0,qty:item.qty||0,unit:item.unit||'un',link:item.link||'',status:item.status||'falta',obs:item.obs||''};if(isNew)sbPost('lista_itens',d);else sbPatch('lista_itens',item.id,d);}
 function syncStockItem(item,groupId,isNew){var d={id:item.id,grupo_id:groupId,name:item.name,spec:item.spec||'',qty:item.qty||0,unit:item.unit||'un',condition:item.condition||'novo',in_box:!!item.inBox,battery_replaced:!!item.batteryReplaced,obs:item.obs||''};if(isNew)sbPost('estoque_itens',d);else sbPatch('estoque_itens',item.id,d);}
+
+
 
 
 
