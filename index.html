@@ -818,6 +818,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div>
 
 <script>
+function findById(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
+
+var openBranch={};
+
+
 
 
 
@@ -1716,131 +1721,148 @@ function doSearch(){filterQ=document.getElementById('search-input').value.toLowe
 function render(){
   if(activeCat==='dashboard'){navSec('dash');return;}
   if(activeCat==='ativos'){navSec('ativos');return;}
+
+  // Show content area
   ['s-dash','s-inv'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   var cw=document.getElementById('content-wrap');if(cw)cw.style.display='flex';
-  var c=document.getElementById('content');if(c)c.style.display='block';
-  // Show/hide add buttons
-  var addProcBtn=document.getElementById('render-add-proc');
-  var addCatBtn=document.getElementById('render-add-cat');
-  if(addProcBtn)addProcBtn.style.display='flex';
-  if(addCatBtn)addCatBtn.style.display=addProcBtn?addProcBtn.style.display:'none';
+  var el2=document.getElementById('content');if(!el2)return;
+  el2.style.display='block';
 
-  // Render categories and processes
-  var q=(document.getElementById('search-input')&&document.getElementById('search-input').value||'').toLowerCase();
-  var el2=document.getElementById('content');
-  if(!el2)return;
+  // Handle list/stock views
+  if(activeCat&&activeCat.indexOf('list-')===0){renderList(activeCatList);return;}
+  if(activeCat&&activeCat.indexOf('stock-')===0){renderStock(activeStock);return;}
+
+  // Show/hide + Novo processo button
+  var addBtn=document.getElementById('render-add-proc');
+  if(addBtn)addBtn.style.display='flex';
+
+  // Search filter
+  var q='';
+  var qEl=document.getElementById('search-input');
+  if(qEl)q=qEl.value.toLowerCase().trim();
+
+  // Build cats/procs HTML
   var h='';
-  
-  // Filter cats/procs
-  var filtCats=activeCat==='todos'?CATS:CATS.filter(function(c){return c.id===activeCat;});
-  
-  filtCats.forEach(function(cat){
+  var isAdmin=currentUser&&currentUser.role==='admin';
+
+  CATS.forEach(function(cat){
     var catProcs=PROCS.filter(function(p){return p.cat===cat.id;});
-    if(q){catProcs=catProcs.filter(function(p){return p.label.toLowerCase().indexOf(q)>=0||p.branches.some(function(b){return b.steps.some(function(s){return (s.title||'').toLowerCase().indexOf(q)>=0;});});});}
-    if(!catProcs.length&&q)return;
-    var pOpen=openCats[cat.id];
+    if(activeCat!=='todos'&&activeCat!==cat.id)return;
+    if(q){
+      catProcs=catProcs.filter(function(p){
+        if(p.label.toLowerCase().indexOf(q)>=0)return true;
+        return p.branches&&p.branches.some(function(b){
+          return b.steps&&b.steps.some(function(st){return(st.title||'').toLowerCase().indexOf(q)>=0;});
+        });
+      });
+      if(!catProcs.length)return;
+    }
+
+    var catOpen=!!openCats[cat.id];
     h+='<div class="cat-block">';
-    h+='<div class="cat-header '+(pOpen?'open':'')+'" onclick="toggleCat(\''+cat.id+'\')">'; 
-    h+='<i class="ti '+cat.icon+' cat-icon"></i>';
+
+    // Category header
+    h+='<div class="cat-header'+(catOpen?' open':'')+'" onclick="toggleCat(\''+cat.id+'\')">';
+    h+='<i class="ti '+esc(cat.icon||'ti-folder')+' cat-icon" aria-hidden="true"></i>';
     h+='<span class="cat-name">'+esc(cat.label)+'</span>';
     h+='<span class="cat-count">'+catProcs.length+' processo'+(catProcs.length!==1?'s':'')+'</span>';
-    if(currentUser&&currentUser.role==='admin'){
+    if(isAdmin){
       h+='<div class="cat-actions" onclick="event.stopPropagation()">';
       h+='<button class="cat-act" onclick="openCatM(\''+cat.id+'\')">editar</button>';
       h+='<button class="cat-act" onclick="dupCat(\''+cat.id+'\')">duplicar</button>';
       h+='<button class="cat-act" onclick="confirmDelCat(\''+cat.id+'\')">excluir</button>';
       h+='</div>';
     }
-    h+='<i class="ti ti-chevron-down cat-chev"></i>';
+    h+='<i class="ti ti-chevron-down cat-chev" aria-hidden="true"></i>';
     h+='</div>';
-    if(pOpen){
+
+    // Category body
+    if(catOpen){
       h+='<div class="cat-body open">';
       catProcs.forEach(function(proc){
         var total=0;
-        if(proc.branches)proc.branches.forEach(function(b){total+=b.steps?b.steps.length:0;});
-        var pOpen2=openProcs[proc.id];
+        if(proc.branches)proc.branches.forEach(function(b){total+=(b.steps||[]).length;});
+        var procOpen=!!openProcs[proc.id];
+        var activeBranch=openBranch[proc.id]||0;
+
         h+='<div>';
-        h+='<div class="proc-row '+(pOpen2?'open':'')+'" onclick="toggleProc(\''+proc.id+'\')">'; 
-        h+='<i class="ti '+proc.icon+' pr-icon"></i>';
+        // Proc row
+        h+='<div class="proc-row'+(procOpen?' open':'')+'" onclick="toggleProc(\''+proc.id+'\')">';
+        h+='<i class="ti '+esc(proc.icon||'ti-file')+' pr-icon" aria-hidden="true"></i>';
         h+='<span class="pr-name">'+esc(proc.label)+'</span>';
         h+='<div class="pr-meta" onclick="event.stopPropagation()">';
         h+='<span class="pr-steps">'+total+' passo'+(total!==1?'s':'')+'</span>';
-        if(currentUser&&currentUser.role==='admin'){
+        if(isAdmin){
           h+='<button class="pr-act" onclick="openEditProcEnhanced(\''+proc.id+'\')">editar</button>';
           h+='<button class="pr-act" onclick="dupProc(\''+proc.id+'\')">duplicar</button>';
           h+='<button class="pr-act" onclick="openFlow(\''+proc.id+'\')">fluxo</button>';
           h+='<button class="pr-act del" onclick="confirmDelProc(\''+proc.id+'\')">excluir</button>';
         }
         h+='</div>';
-        h+='<i class="ti ti-chevron-down pr-chev"></i>';
+        h+='<i class="ti ti-chevron-down pr-chev" aria-hidden="true"></i>';
         h+='</div>';
-        if(pOpen2){
-          var activeBranch=openBranch[proc.id]||0;
+
+        // Proc body (when open)
+        if(procOpen){
           h+='<div class="proc-body open">';
+          var branches=proc.branches||[];
           // Branch tabs
-          if(proc.branches&&proc.branches.length>0){
-            if(proc.branches.length>1){
-              h+='<div class="branch-tabs">';
-              proc.branches.forEach(function(branch,bi){
-                h+='<button class="branch-tab-btn'+(bi===activeBranch?' on':'')+'" onclick="switchBranch(\''+proc.id+'\','+bi+');event.stopPropagation()">'+esc(branch.label)+'</button>';
-              });
-              h+='<button class="branch-tab-btn add-branch" onclick="addBranch(\''+proc.id+'\');event.stopPropagation()">+ Nova aba</button>';
-              h+='</div>';
-            } else {
-              h+='<div class="branch-tabs">';
-              h+='<button class="branch-tab-btn on">'+esc(proc.branches[0].label)+'</button>';
-              h+='<button class="branch-tab-btn add-branch" onclick="addBranch(\''+proc.id+'\');event.stopPropagation()">+ Nova aba</button>';
-              h+='</div>';
-            }
-            // Show active branch steps
-            var branch=proc.branches[activeBranch]||proc.branches[0];
-            var steps=branch?branch.steps||[]:[];
-            if(!steps.length){
-              h+='<div class="empty-steps">Nenhum passo. Clique em + Adicionar passo.</div>';
-            } else {
-              steps.forEach(function(step,si){
-                h+='<div class="step-item">';
-                h+='<div class="step-num">'+(si+1)+'</div>';
-                h+='<div class="step-body">';
-                h+='<div class="step-title">'+renderLine(step.title||'')+'</div>';
-                if(step.desc)h+='<div class="step-desc">'+renderDesc(step.desc)+'</div>';
-                if(step.warn)h+='<div class="step-warn">⚠️ '+esc(step.warn)+'</div>';
-                if(step.info)h+='<div class="step-info">ℹ️ '+esc(step.info)+'</div>';
-                if(step.code)h+='<div class="step-code">'+renderPath(step.code)+'</div>';
-                if(step.checks&&step.checks.length){
-                  h+='<div class="step-checks">';
-                  step.checks.forEach(function(ch,ci){
-                    h+='<label class="check-item"><input type="checkbox" onchange="markCheck(\''+proc.id+'\','+activeBranch+','+si+','+ci+',this.checked)"> '+esc(ch)+'</label>';
-                  });
-                  h+='</div>';
-                }
-                h+='</div></div>';
-              });
-            }
-            // Add step button
-            if(currentUser&&currentUser.role==='admin'){
-              h+='<div class="add-step-bar">';
-              h+='<button class="add-step-btn" onclick="quickAddStep(\''+proc.id+'\','+activeBranch+');event.stopPropagation()">+ Adicionar passo</button>';
-              if(steps.length>0){
-                h+='<button class="add-step-btn edit-btn" onclick="openEditProcEnhanced(\''+proc.id+'\');event.stopPropagation()">✏ Editar todos</button>';
-              }
-              h+='</div>';
-            }
+          h+='<div class="branch-tabs">';
+          branches.forEach(function(branch,bi){
+            h+='<button class="branch-tab-btn'+(bi===activeBranch?' on':'')+'" onclick="switchBranch(\''+proc.id+'\','+bi+');event.stopPropagation()">'+esc(branch.label||'Padrão')+'</button>';
+          });
+          if(isAdmin){
+            h+='<button class="branch-tab-btn add-branch" onclick="addBranch(\''+proc.id+'\');event.stopPropagation()">+ Nova aba</button>';
           }
           h+='</div>';
+
+          // Steps of active branch
+          var branch=branches[activeBranch]||branches[0];
+          var steps=branch?(branch.steps||[]):[];
+
+          if(!steps.length){
+            h+='<div class="empty-steps">Nenhum passo ainda.</div>';
+          } else {
+            steps.forEach(function(step,si){
+              h+='<div class="step-item">';
+              h+='<div class="step-num">'+(si+1)+'</div>';
+              h+='<div class="step-body">';
+              h+='<div class="step-title">'+renderLine(step.title||'')+'</div>';
+              if(step.desc)h+='<div class="step-desc">'+renderDesc(step.desc)+'</div>';
+              if(step.warn)h+='<div class="step-warn">⚠️ '+esc(step.warn)+'</div>';
+              if(step.info)h+='<div class="step-info">ℹ️ '+esc(step.info)+'</div>';
+              if(step.code)h+='<div class="step-code">'+renderPath(step.code)+'</div>';
+              if(step.checks&&step.checks.length){
+                h+='<div class="step-checks">';
+                step.checks.forEach(function(ch,ci){
+                  h+='<label class="check-item"><input type="checkbox" onchange="markCheck(\''+proc.id+'\','+activeBranch+','+si+','+ci+',this.checked)"> '+esc(ch)+'</label>';
+                });
+                h+='</div>';
+              }
+              h+='</div></div>';
+            });
+          }
+
+          // Add step button
+          if(isAdmin){
+            h+='<div class="add-step-bar">';
+            h+='<button class="add-step-btn" onclick="quickAddStep(\''+proc.id+'\','+activeBranch+');event.stopPropagation()">+ Adicionar passo</button>';
+            h+='<button class="add-step-btn edit-btn" onclick="openEditProcEnhanced(\''+proc.id+'\');event.stopPropagation()">✏ Editar todos</button>';
+            h+='</div>';
+          }
+          h+='</div>'; // proc-body
         }
-        h+='</div>';
+        h+='</div>'; // proc wrapper
       });
-      h+='</div>';
+      h+='</div>'; // cat-body
     }
-    h+='</div>';
+    h+='</div>'; // cat-block
   });
-  
+
   if(!h){
-    if(q)h='<p class="empty-msg">Nenhum processo encontrado para "'+esc(q)+'".</p>';
-    else h='<p class="empty-msg">Nenhum processo cadastrado. Clique em + Novo processo para começar.</p>';
+    h='<p class="empty-msg">Nenhum processo cadastrado. Clique em <strong>+ Novo processo</strong> para começar.</p>';
   }
-  
+
   el2.innerHTML=h;
 }
 function renderCatsList(){
@@ -2964,7 +2986,6 @@ function saveProc(){
     syncCat(newCat,true);
     closeM('m-proc');
     renderSidebarNew();
-    activeCat=nid;
     render();
     return;
   }
@@ -3313,6 +3334,9 @@ function syncCat(cat,isNew){var d={id:cat.id,label:cat.label,icon:cat.icon};if(i
 function syncProc(proc,isNew){var d={id:proc.id,cat_id:proc.cat,icon:proc.icon,label:proc.label,branches:proc.branches};if(isNew)sbPost('processos',d);else sbPatch('processos',proc.id,d);}
 function syncListItem(item,listId,isNew){var d={id:item.id,lista_id:listId,name:item.name,spec:item.spec||'',qty_stock:item.qtyStock||0,qty:item.qty||0,unit:item.unit||'un',link:item.link||'',status:item.status||'falta',obs:item.obs||''};if(isNew)sbPost('lista_itens',d);else sbPatch('lista_itens',item.id,d);}
 function syncStockItem(item,groupId,isNew){var d={id:item.id,grupo_id:groupId,name:item.name,spec:item.spec||'',qty:item.qty||0,unit:item.unit||'un',condition:item.condition||'novo',in_box:!!item.inBox,battery_replaced:!!item.batteryReplaced,obs:item.obs||''};if(isNew)sbPost('estoque_itens',d);else sbPatch('estoque_itens',item.id,d);}
+
+
+
 
 
 
